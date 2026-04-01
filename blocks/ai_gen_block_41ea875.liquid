@@ -1,0 +1,1016 @@
+{% doc %}
+  @prompt
+    Revise the existing product collection grid block so that each product image is wrapped in an anchor tag that links to the product's URL, making the images clickable and navigating to the individual product page when clicked., add a fully functional add to cart underneath each option, with size changeable variant and quantity selectors, and also a settting where i can embed a discount code automatically applied when user clicks add to cart. let me also have a toggle to select a red price box that'll show next to the original price, with the updated discount price after the code. the add to cart button should have a pulsating button in the top right where i can put any text i want to. to show a sale., put the size and quantity on 1 row make it more compact, no i want size as a dropdown selector, then quantity more compact so they inhabit one row only, can you please make it so i can customise the shape of the quantity and then variant selectors? so they both fit on the row that they're both on properly., can you please make it so i can customise the shape of the quantity and then variant selectors? so they both fit on the row that they're both on properly., please fit everything and make sure that i can customise the size of the variant selector and quantity selectors., please fit everything and make sure that i can customise the size of the variant selector and quantity selectors that are within this collection grid, give me extensible choice to customise, can you keep everything else as is. I just want the row above the add to cart to be more customisable (the row with the variant and quantity selector), as both buttons are slightly laggy and don't allow for proper functionality, keep everything as is but ensure that the 'Selector row layout' has all bits fitting, there is still some overflow and i need it all to fit propertly please. Also please put the red bubble sale price next to the actual price, there should be a strikethrough the actual prices, and a new sale price in red next to it; I need a toggle in settings that enables me to add the sale percentage I wish to reflect for the sale price., keep all as is but make sure that the font size and the size of the variant selectors fits into the row perfectly., Variant selector style
+    and quantity selector buttons must automatically be resized to ensure they are fully visible both in their row. keep everything else as is please. , keep everything as is. just make sure that i can edit the proportion of the row that the variant and quantity selector styles take up (like fractions)., keep everything as is. make sure that there's the red bubble next to the original price, that i can edit in the settings a slider to calculate the discount that reflects. original price should have a strikethrough. make sure that the quantity and variant selector row are more compact than they are, but all elements are visible. give an option to have some space around the collection grid (margin). 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-grid-{{ai_gen_id}} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin: {{ block.settings.grid_margin_top }}px {{ block.settings.grid_margin_horizontal }}px {{ block.settings.grid_margin_bottom }}px {{ block.settings.grid_margin_horizontal }}px;
+  }
+
+  .ai-product-grid-container-{{ai_gen_id}} {
+    display: grid;
+    grid-template-columns: repeat({{ block.settings.columns_desktop }}, 1fr);
+    gap: {{ block.settings.grid_gap }}px;
+  }
+
+  .ai-product-card-{{ai_gen_id}} {
+    display: flex;
+    flex-direction: column;
+    gap: {{ block.settings.card_gap }}px;
+  }
+
+  .ai-product-image-wrapper-{{ai_gen_id}} {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+  }
+
+  .ai-product-image-link-{{ai_gen_id}} {
+    display: block;
+    width: 100%;
+  }
+
+  .ai-product-image-{{ai_gen_id}} {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  .ai-product-info-{{ai_gen_id}} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-product-title-{{ai_gen_id}} {
+    font-size: {{ block.settings.title_font_size }}px;
+    font-weight: {{ block.settings.title_font_weight }};
+    color: {{ block.settings.title_color }};
+    margin: 0;
+  }
+
+  .ai-product-price-{{ai_gen_id}} {
+    font-size: {{ block.settings.price_font_size }}px;
+    color: {{ block.settings.price_color }};
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .ai-price-original-{{ai_gen_id}} {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .ai-price-sale-{{ai_gen_id}} {
+    color: {{ block.settings.sale_price_color }};
+    font-weight: 600;
+  }
+
+  .ai-price-discount-bubble-{{ai_gen_id}} {
+    background-color: {{ block.settings.discount_bubble_bg_color }};
+    color: {{ block.settings.discount_bubble_text_color }};
+    padding: 2px 6px;
+    border-radius: 50px;
+    font-size: {{ block.settings.discount_bubble_font_size }}px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .ai-variant-quantity-row-{{ai_gen_id}} {
+    display: flex;
+    gap: {{ block.settings.row_gap }}px;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .ai-variant-selector-wrapper-{{ai_gen_id}} {
+    flex: {{ block.settings.variant_flex_numerator }} {{ block.settings.variant_flex_numerator }} 0%;
+    min-width: 0;
+  }
+
+  .ai-variant-selector-{{ai_gen_id}} {
+    width: 100%;
+    height: {{ block.settings.variant_height }}px;
+    padding: 0 6px;
+    padding-right: 24px;
+    border: {{ block.settings.variant_border_width }}px solid {{ block.settings.variant_border_color }};
+    border-radius: {{ block.settings.variant_border_radius }}px;
+    background-color: {{ block.settings.variant_bg_color }};
+    color: {{ block.settings.variant_text_color }};
+    font-size: clamp(9px, 2vw, {{ block.settings.variant_font_size }}px);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 12 8'%3E%3Cpath fill='%23{{ block.settings.variant_text_color | remove: '#' }}' d='M1.41 0L6 4.58 10.59 0 12 1.41l-6 6-6-6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  .ai-quantity-wrapper-{{ai_gen_id}} {
+    flex: {{ block.settings.quantity_flex_numerator }} {{ block.settings.quantity_flex_numerator }} 0%;
+    min-width: 0;
+  }
+
+  .ai-quantity-selector-{{ai_gen_id}} {
+    display: flex;
+    height: {{ block.settings.quantity_height }}px;
+    border: {{ block.settings.quantity_border_width }}px solid {{ block.settings.quantity_border_color }};
+    border-radius: {{ block.settings.quantity_border_radius }}px;
+    overflow: hidden;
+    background-color: {{ block.settings.quantity_bg_color }};
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .ai-quantity-btn-{{ai_gen_id}} {
+    flex: 1;
+    min-width: 0;
+    background-color: {{ block.settings.quantity_btn_bg_color }};
+    color: {{ block.settings.quantity_btn_text_color }};
+    border: none;
+    cursor: pointer;
+    font-size: clamp(12px, 2.5vw, {{ block.settings.quantity_btn_font_size }}px);
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .ai-quantity-btn-{{ai_gen_id}}:hover {
+    background-color: {{ block.settings.quantity_btn_hover_bg_color }};
+  }
+
+  .ai-quantity-btn-{{ai_gen_id}}:active {
+    transform: scale(0.95);
+  }
+
+  .ai-quantity-input-{{ai_gen_id}} {
+    flex: 1.2;
+    min-width: 0;
+    text-align: center;
+    border: none;
+    background-color: {{ block.settings.quantity_input_bg_color }};
+    color: {{ block.settings.quantity_text_color }};
+    font-size: clamp(9px, 2vw, {{ block.settings.quantity_font_size }}px);
+    font-weight: 500;
+    -moz-appearance: textfield;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .ai-quantity-input-{{ai_gen_id}}::-webkit-outer-spin-button,
+  .ai-quantity-input-{{ai_gen_id}}::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .ai-add-to-cart-wrapper-{{ai_gen_id}} {
+    position: relative;
+  }
+
+  .ai-add-to-cart-btn-{{ai_gen_id}} {
+    width: 100%;
+    padding: {{ block.settings.button_padding }}px;
+    background-color: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_font_size }}px;
+    font-weight: {{ block.settings.button_font_weight }};
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .ai-add-to-cart-btn-{{ai_gen_id}}:hover {
+    background-color: {{ block.settings.button_hover_bg_color }};
+  }
+
+  {% if block.settings.show_sale_badge %}
+  .ai-sale-badge-{{ai_gen_id}} {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: {{ block.settings.sale_badge_bg_color }};
+    color: {{ block.settings.sale_badge_text_color }};
+    padding: 4px 10px;
+    border-radius: {{ block.settings.sale_badge_radius }}px;
+    font-size: {{ block.settings.sale_badge_font_size }}px;
+    font-weight: 700;
+    animation: ai-pulse-{{ai_gen_id}} 2s infinite;
+    z-index: 1;
+  }
+
+  @keyframes ai-pulse-{{ai_gen_id}} {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  {% endif %}
+
+  @media screen and (max-width: 749px) {
+    .ai-product-grid-container-{{ai_gen_id}} {
+      grid-template-columns: repeat({{ block.settings.columns_mobile }}, 1fr);
+    }
+  }
+{% endstyle %}
+
+<product-collection-grid-{{ai_gen_id}} class="ai-product-grid-{{ai_gen_id}}" {{ block.shopify_attributes }}>
+  <div class="ai-product-grid-container-{{ai_gen_id}}">
+    {% if block.settings.collection != blank %}
+      {% for product in block.settings.collection.products limit: block.settings.products_to_show %}
+        <div class="ai-product-card-{{ai_gen_id}}">
+          <div class="ai-product-image-wrapper-{{ai_gen_id}}">
+            <a href="{{ product.url }}" class="ai-product-image-link-{{ai_gen_id}}">
+              {% if product.featured_image %}
+                <img
+                  src="{{ product.featured_image | image_url: width: 600 }}"
+                  alt="{{ product.featured_image.alt | escape }}"
+                  class="ai-product-image-{{ai_gen_id}}"
+                  loading="lazy"
+                  width="600"
+                  height="600"
+                >
+              {% else %}
+                <div class="ai-product-image-placeholder-{{ai_gen_id}}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </a>
+          </div>
+
+          <div class="ai-product-info-{{ai_gen_id}}">
+            <h3 class="ai-product-title-{{ai_gen_id}}">{{ product.title }}</h3>
+
+            <div class="ai-product-price-{{ai_gen_id}}">
+              {% assign sale_percent = block.settings.sale_percentage %}
+              {% assign sale_multiplier = 100 | minus: sale_percent | divided_by: 100.0 %}
+              {% assign sale_price = product.price | times: sale_multiplier %}
+              
+              <span class="ai-price-original-{{ai_gen_id}}">{{ product.price | money }}</span>
+              <span class="ai-price-discount-bubble-{{ai_gen_id}}">-{{ sale_percent }}%</span>
+              <span class="ai-price-sale-{{ai_gen_id}}">{{ sale_price | money }}</span>
+            </div>
+
+            {% if product.has_only_default_variant == false %}
+              <div class="ai-variant-quantity-row-{{ai_gen_id}}">
+                <div class="ai-variant-selector-wrapper-{{ai_gen_id}}">
+                  <select class="ai-variant-selector-{{ai_gen_id}}" data-product-id="{{ product.id }}">
+                    {% for variant in product.variants %}
+                      <option value="{{ variant.id }}" {% if variant.available == false %}disabled{% endif %}>
+                        {{ variant.title }}{% if variant.available == false %} - Sold Out{% endif %}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="ai-quantity-wrapper-{{ai_gen_id}}">
+                  <div class="ai-quantity-selector-{{ai_gen_id}}">
+                    <button type="button" class="ai-quantity-btn-{{ai_gen_id}}" data-action="decrease">−</button>
+                    <input type="number" class="ai-quantity-input-{{ai_gen_id}}" value="1" min="1" max="99" readonly>
+                    <button type="button" class="ai-quantity-btn-{{ai_gen_id}}" data-action="increase">+</button>
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <div class="ai-variant-quantity-row-{{ai_gen_id}}">
+                <div class="ai-quantity-wrapper-{{ai_gen_id}}" style="flex: 1;">
+                  <div class="ai-quantity-selector-{{ai_gen_id}}">
+                    <button type="button" class="ai-quantity-btn-{{ai_gen_id}}" data-action="decrease">−</button>
+                    <input type="number" class="ai-quantity-input-{{ai_gen_id}}" value="1" min="1" max="99" readonly>
+                    <button type="button" class="ai-quantity-btn-{{ai_gen_id}}" data-action="increase">+</button>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+
+            <div class="ai-add-to-cart-wrapper-{{ai_gen_id}}">
+              {% if block.settings.show_sale_badge %}
+                <span class="ai-sale-badge-{{ai_gen_id}}">{{ block.settings.sale_badge_text }}</span>
+              {% endif %}
+              <button 
+                type="button" 
+                class="ai-add-to-cart-btn-{{ai_gen_id}}"
+                data-product-id="{{ product.id }}"
+                data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+              >
+                {{ block.settings.button_text }}
+              </button>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Please select a collection</p>
+    {% endif %}
+  </div>
+</product-collection-grid-{{ai_gen_id}}>
+
+<script>
+(function() {
+  class ProductCollectionGrid{{ai_gen_id}} extends HTMLElement {
+    constructor() {
+      super();
+      this.discountCode = '{{ block.settings.discount_code }}';
+    }
+
+    connectedCallback() {
+      this.setupQuantityControls();
+      this.setupVariantSelectors();
+      this.setupAddToCart();
+    }
+
+    setupQuantityControls() {
+      const cards = this.querySelectorAll('.ai-product-card-{{ai_gen_id}}');
+      
+      cards.forEach(card => {
+        const decreaseBtn = card.querySelector('[data-action="decrease"]');
+        const increaseBtn = card.querySelector('[data-action="increase"]');
+        const input = card.querySelector('.ai-quantity-input-{{ai_gen_id}}');
+
+        const updateQuantity = (change) => {
+          const currentValue = parseInt(input.value) || 1;
+          const newValue = currentValue + change;
+          
+          if (newValue >= 1 && newValue <= 99) {
+            input.value = newValue;
+          }
+        };
+
+        decreaseBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          updateQuantity(-1);
+        });
+
+        increaseBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          updateQuantity(1);
+        });
+
+        input.addEventListener('change', () => {
+          let value = parseInt(input.value) || 1;
+          if (value < 1) value = 1;
+          if (value > 99) value = 99;
+          input.value = value;
+        });
+      });
+    }
+
+    setupVariantSelectors() {
+      const selectors = this.querySelectorAll('.ai-variant-selector-{{ai_gen_id}}');
+      selectors.forEach(selector => {
+        selector.addEventListener('change', (e) => {
+          const card = selector.closest('.ai-product-card-{{ai_gen_id}}');
+          const addToCartBtn = card.querySelector('.ai-add-to-cart-btn-{{ai_gen_id}}');
+          addToCartBtn.dataset.variantId = selector.value;
+        });
+      });
+    }
+
+    setupAddToCart() {
+      const buttons = this.querySelectorAll('.ai-add-to-cart-btn-{{ai_gen_id}}');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const card = btn.closest('.ai-product-card-{{ai_gen_id}}');
+          const variantId = btn.dataset.variantId;
+          const quantityInput = card.querySelector('.ai-quantity-input-{{ai_gen_id}}');
+          const quantity = parseInt(quantityInput.value) || 1;
+
+          btn.disabled = true;
+          btn.textContent = 'Adding...';
+
+          try {
+            const formData = {
+              items: [{
+                id: variantId,
+                quantity: quantity
+              }]
+            };
+
+            const response = await fetch('/cart/add.js', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+              if (this.discountCode) {
+                await this.applyDiscount();
+              }
+              
+              window.location.href = '/cart';
+            } else {
+              throw new Error('Failed to add to cart');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            btn.textContent = 'Error - Try Again';
+            setTimeout(() => {
+              btn.textContent = '{{ block.settings.button_text }}';
+              btn.disabled = false;
+            }, 2000);
+          }
+        });
+      });
+    }
+
+    async applyDiscount() {
+      if (!this.discountCode) return;
+      
+      try {
+        await fetch('/cart/update.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            attributes: {
+              discount_code: this.discountCode
+            }
+          })
+        });
+      } catch (error) {
+        console.error('Error applying discount:', error);
+      }
+    }
+  }
+
+  customElements.define('product-collection-grid-{{ai_gen_id}}', ProductCollectionGrid{{ai_gen_id}});
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Product collection grid",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products to show",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Grid spacing"
+    },
+    {
+      "type": "range",
+      "id": "grid_margin_top",
+      "label": "Top margin",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "grid_margin_bottom",
+      "label": "Bottom margin",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "grid_margin_horizontal",
+      "label": "Left/right margin",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Grid layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Gap between products",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Gap inside product card",
+      "min": 8,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Product image"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Product title"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Product price"
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "sale_price_color",
+      "label": "Sale price color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "header",
+      "content": "Sale discount"
+    },
+    {
+      "type": "range",
+      "id": "sale_percentage",
+      "label": "Discount percentage",
+      "min": 5,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 20,
+      "info": "Discount to apply to all products"
+    },
+    {
+      "type": "header",
+      "content": "Discount bubble"
+    },
+    {
+      "type": "color",
+      "id": "discount_bubble_bg_color",
+      "label": "Background color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "discount_bubble_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "discount_bubble_font_size",
+      "label": "Font size",
+      "min": 9,
+      "max": 14,
+      "step": 1,
+      "unit": "px",
+      "default": 11
+    },
+    {
+      "type": "header",
+      "content": "Selector row proportions"
+    },
+    {
+      "type": "paragraph",
+      "content": "Control space each selector takes. Example: Variant=2, Quantity=1 means variant takes 2/3 of row."
+    },
+    {
+      "type": "range",
+      "id": "variant_flex_numerator",
+      "label": "Variant proportion",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 2,
+      "info": "Variant width fraction"
+    },
+    {
+      "type": "range",
+      "id": "quantity_flex_numerator",
+      "label": "Quantity proportion",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 1,
+      "info": "Quantity width fraction"
+    },
+    {
+      "type": "range",
+      "id": "row_gap",
+      "label": "Gap between selectors",
+      "min": 4,
+      "max": 16,
+      "step": 2,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Variant selector style"
+    },
+    {
+      "type": "range",
+      "id": "variant_height",
+      "label": "Height",
+      "min": 28,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "variant_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "variant_border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 3,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "variant_border_color",
+      "label": "Border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "variant_bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "variant_text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "variant_font_size",
+      "label": "Max font size",
+      "min": 10,
+      "max": 14,
+      "step": 1,
+      "unit": "px",
+      "default": 11,
+      "info": "Auto-scales down to fit"
+    },
+    {
+      "type": "header",
+      "content": "Quantity selector style"
+    },
+    {
+      "type": "range",
+      "id": "quantity_height",
+      "label": "Height",
+      "min": 28,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "quantity_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "quantity_border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 3,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "quantity_border_color",
+      "label": "Border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "quantity_bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "quantity_text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "quantity_font_size",
+      "label": "Max input font size",
+      "min": 10,
+      "max": 14,
+      "step": 1,
+      "unit": "px",
+      "default": 11,
+      "info": "Auto-scales down to fit"
+    },
+    {
+      "type": "color",
+      "id": "quantity_input_bg_color",
+      "label": "Input background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Quantity buttons"
+    },
+    {
+      "type": "range",
+      "id": "quantity_btn_font_size",
+      "label": "Max button font size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 14,
+      "info": "Auto-scales down to fit"
+    },
+    {
+      "type": "color",
+      "id": "quantity_btn_bg_color",
+      "label": "Button background",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "color",
+      "id": "quantity_btn_hover_bg_color",
+      "label": "Button hover background",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "quantity_btn_text_color",
+      "label": "Button text color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Add to cart button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "range",
+      "id": "button_padding",
+      "label": "Padding",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Background color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg_color",
+      "label": "Hover background color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Sale badge"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sale_badge",
+      "label": "Show sale badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "sale_badge_text",
+      "label": "Badge text",
+      "default": "SALE"
+    },
+    {
+      "type": "color",
+      "id": "sale_badge_bg_color",
+      "label": "Background color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "sale_badge_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "sale_badge_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "sale_badge_font_size",
+      "label": "Font size",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 11
+    },
+    {
+      "type": "header",
+      "content": "Discount code"
+    },
+    {
+      "type": "text",
+      "id": "discount_code",
+      "label": "Auto-apply discount code",
+      "info": "Code applied when adding to cart"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product collection grid"
+    }
+  ]
+}
+{% endschema %}

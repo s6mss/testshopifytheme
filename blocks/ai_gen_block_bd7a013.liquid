@@ -1,0 +1,837 @@
+{% doc %}
+  @prompt
+    Generate a header where the left column will be inhabited by text, where there can be multiple rows of text, size customisable. to the right, a column where a 30 minute customisable timer that resets will populate. it will have a range of funky animations to choose from. text of the announcement and background gradient/colour are customisable., need a selector that enables me to have the elements side by side on mobile (1 or 2 columns), please show hours, mins and seconds., now make it so that the text rows, i can edit each of their sizings and formattings., please give an option to edit the gap between the text rows, and margins, and padding., i need to be able to make the gap between text rows even smaller, i need them to be able to be even closer, like new line im talking.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-timer-header-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    {% if block.settings.use_gradient %}
+      background: {{ block.settings.background_gradient }};
+    {% else %}
+      background-color: {{ block.settings.background_color }};
+    {% endif %}
+    padding: {{ block.settings.padding_top }}px {{ block.settings.padding_horizontal }}px {{ block.settings.padding_bottom }}px {{ block.settings.padding_horizontal }}px;
+    margin-top: {{ block.settings.margin_top }}px;
+    margin-bottom: {{ block.settings.margin_bottom }}px;
+  }
+
+  .ai-timer-header-container-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ai-timer-header-text-column-{{ ai_gen_id }} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: {{ block.settings.text_rows_gap }}px;
+  }
+
+  .ai-timer-header-text-row-1-{{ ai_gen_id }} {
+    color: {{ block.settings.text_row_1_color }};
+    font-size: {{ block.settings.text_row_1_size }}px;
+    font-weight: {{ block.settings.text_row_1_weight }};
+    line-height: {{ block.settings.text_row_1_line_height }};
+    margin: 0;
+    {% if block.settings.text_row_1_italic %}
+      font-style: italic;
+    {% endif %}
+    {% if block.settings.text_row_1_uppercase %}
+      text-transform: uppercase;
+    {% endif %}
+  }
+
+  .ai-timer-header-text-row-2-{{ ai_gen_id }} {
+    color: {{ block.settings.text_row_2_color }};
+    font-size: {{ block.settings.text_row_2_size }}px;
+    font-weight: {{ block.settings.text_row_2_weight }};
+    line-height: {{ block.settings.text_row_2_line_height }};
+    margin: 0;
+    {% if block.settings.text_row_2_italic %}
+      font-style: italic;
+    {% endif %}
+    {% if block.settings.text_row_2_uppercase %}
+      text-transform: uppercase;
+    {% endif %}
+  }
+
+  .ai-timer-header-text-row-3-{{ ai_gen_id }} {
+    color: {{ block.settings.text_row_3_color }};
+    font-size: {{ block.settings.text_row_3_size }}px;
+    font-weight: {{ block.settings.text_row_3_weight }};
+    line-height: {{ block.settings.text_row_3_line_height }};
+    margin: 0;
+    {% if block.settings.text_row_3_italic %}
+      font-style: italic;
+    {% endif %}
+    {% if block.settings.text_row_3_uppercase %}
+      text-transform: uppercase;
+    {% endif %}
+  }
+
+  .ai-timer-header-timer-column-{{ ai_gen_id }} {
+    flex-shrink: 0;
+  }
+
+  .ai-timer-header-timer-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .ai-timer-header-time-unit-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ai-timer-header-time-value-{{ ai_gen_id }} {
+    background-color: {{ block.settings.timer_bg_color }};
+    color: {{ block.settings.timer_text_color }};
+    font-size: {{ block.settings.timer_size }}px;
+    font-weight: 700;
+    padding: 8px 12px;
+    border-radius: 4px;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  .ai-timer-header-time-label-{{ ai_gen_id }} {
+    color: {{ block.settings.timer_label_color }};
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-timer-header-separator-{{ ai_gen_id }} {
+    color: {{ block.settings.timer_text_color }};
+    font-size: {{ block.settings.timer_size }}px;
+    font-weight: 700;
+  }
+
+  {% if block.settings.animation == 'pulse' %}
+    @keyframes ai-timer-pulse-{{ ai_gen_id }} {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    .ai-timer-header-time-value-{{ ai_gen_id }} {
+      animation: ai-timer-pulse-{{ ai_gen_id }} 1s ease-in-out infinite;
+    }
+  {% elsif block.settings.animation == 'bounce' %}
+    @keyframes ai-timer-bounce-{{ ai_gen_id }} {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    .ai-timer-header-time-value-{{ ai_gen_id }} {
+      animation: ai-timer-bounce-{{ ai_gen_id }} 1s ease-in-out infinite;
+    }
+  {% elsif block.settings.animation == 'glow' %}
+    @keyframes ai-timer-glow-{{ ai_gen_id }} {
+      0%, 100% {
+        box-shadow: 0 0 5px {{ block.settings.timer_bg_color }};
+      }
+      50% {
+        box-shadow: 0 0 20px {{ block.settings.timer_bg_color }}, 0 0 30px {{ block.settings.timer_bg_color }};
+      }
+    }
+
+    .ai-timer-header-time-value-{{ ai_gen_id }} {
+      animation: ai-timer-glow-{{ ai_gen_id }} 2s ease-in-out infinite;
+    }
+  {% elsif block.settings.animation == 'flip' %}
+    @keyframes ai-timer-flip-{{ ai_gen_id }} {
+      0% {
+        transform: rotateX(0deg);
+      }
+      50% {
+        transform: rotateX(90deg);
+      }
+      100% {
+        transform: rotateX(0deg);
+      }
+    }
+
+    .ai-timer-header-time-value-{{ ai_gen_id }}.updating {
+      animation: ai-timer-flip-{{ ai_gen_id }} 0.6s ease-in-out;
+    }
+  {% elsif block.settings.animation == 'shake' %}
+    @keyframes ai-timer-shake-{{ ai_gen_id }} {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(-3px);
+      }
+      75% {
+        transform: translateX(3px);
+      }
+    }
+
+    .ai-timer-header-time-value-{{ ai_gen_id }}.updating {
+      animation: ai-timer-shake-{{ ai_gen_id }} 0.5s ease-in-out;
+    }
+  {% elsif block.settings.animation == 'rainbow' %}
+    @keyframes ai-timer-rainbow-{{ ai_gen_id }} {
+      0% {
+        background-color: #ff0000;
+      }
+      16% {
+        background-color: #ff7f00;
+      }
+      33% {
+        background-color: #ffff00;
+      }
+      50% {
+        background-color: #00ff00;
+      }
+      66% {
+        background-color: #0000ff;
+      }
+      83% {
+        background-color: #8b00ff;
+      }
+      100% {
+        background-color: #ff0000;
+      }
+    }
+
+    .ai-timer-header-time-value-{{ ai_gen_id }} {
+      animation: ai-timer-rainbow-{{ ai_gen_id }} 3s linear infinite;
+    }
+  {% endif %}
+
+  @media screen and (max-width: 749px) {
+    .ai-timer-header-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_top | times: 0.7 }}px {{ block.settings.padding_horizontal | times: 0.7 }}px {{ block.settings.padding_bottom | times: 0.7 }}px {{ block.settings.padding_horizontal | times: 0.7 }}px;
+    }
+
+    .ai-timer-header-container-{{ ai_gen_id }} {
+      {% if block.settings.mobile_layout == 'stacked' %}
+        flex-direction: column;
+        text-align: center;
+      {% else %}
+        flex-direction: row;
+        align-items: center;
+      {% endif %}
+    }
+
+    .ai-timer-header-text-column-{{ ai_gen_id }} {
+      {% if block.settings.mobile_layout == 'side_by_side' %}
+        flex: 1;
+      {% endif %}
+      gap: {{ block.settings.text_rows_gap | times: 0.7 }}px;
+    }
+
+    .ai-timer-header-text-row-1-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_row_1_size | times: 0.8 }}px;
+    }
+
+    .ai-timer-header-text-row-2-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_row_2_size | times: 0.8 }}px;
+    }
+
+    .ai-timer-header-text-row-3-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_row_3_size | times: 0.8 }}px;
+    }
+
+    .ai-timer-header-timer-{{ ai_gen_id }} {
+      {% if block.settings.mobile_timer_columns == '1' %}
+        flex-direction: column;
+        gap: 4px;
+      {% endif %}
+    }
+
+    .ai-timer-header-time-value-{{ ai_gen_id }} {
+      font-size: {{ block.settings.timer_size | times: 0.8 }}px;
+      min-width: 40px;
+      padding: 6px 10px;
+    }
+
+    {% if block.settings.mobile_timer_columns == '1' %}
+      .ai-timer-header-separator-{{ ai_gen_id }} {
+        display: none;
+      }
+    {% endif %}
+  }
+{% endstyle %}
+
+<countdown-timer-{{ ai_gen_id }}
+  class="ai-timer-header-{{ ai_gen_id }}"
+  data-duration="{{ block.settings.timer_duration }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-timer-header-container-{{ ai_gen_id }}">
+    <div class="ai-timer-header-text-column-{{ ai_gen_id }}">
+      {% if block.settings.text_row_1 != blank %}
+        <div class="ai-timer-header-text-row-1-{{ ai_gen_id }}">{{ block.settings.text_row_1 }}</div>
+      {% endif %}
+      {% if block.settings.text_row_2 != blank %}
+        <div class="ai-timer-header-text-row-2-{{ ai_gen_id }}">{{ block.settings.text_row_2 }}</div>
+      {% endif %}
+      {% if block.settings.text_row_3 != blank %}
+        <div class="ai-timer-header-text-row-3-{{ ai_gen_id }}">{{ block.settings.text_row_3 }}</div>
+      {% endif %}
+    </div>
+
+    <div class="ai-timer-header-timer-column-{{ ai_gen_id }}">
+      <div class="ai-timer-header-timer-{{ ai_gen_id }}">
+        <div class="ai-timer-header-time-unit-{{ ai_gen_id }}">
+          <div class="ai-timer-header-time-value-{{ ai_gen_id }}" data-hours>00</div>
+          <div class="ai-timer-header-time-label-{{ ai_gen_id }}">Hrs</div>
+        </div>
+        <div class="ai-timer-header-separator-{{ ai_gen_id }}">:</div>
+        <div class="ai-timer-header-time-unit-{{ ai_gen_id }}">
+          <div class="ai-timer-header-time-value-{{ ai_gen_id }}" data-minutes>00</div>
+          <div class="ai-timer-header-time-label-{{ ai_gen_id }}">Min</div>
+        </div>
+        <div class="ai-timer-header-separator-{{ ai_gen_id }}">:</div>
+        <div class="ai-timer-header-time-unit-{{ ai_gen_id }}">
+          <div class="ai-timer-header-time-value-{{ ai_gen_id }}" data-seconds>00</div>
+          <div class="ai-timer-header-time-label-{{ ai_gen_id }}">Sec</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</countdown-timer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class CountdownTimer{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.duration = parseInt(this.dataset.duration) * 60;
+        this.hoursEl = this.querySelector('[data-hours]');
+        this.minutesEl = this.querySelector('[data-minutes]');
+        this.secondsEl = this.querySelector('[data-seconds]');
+        this.interval = null;
+      }
+
+      connectedCallback() {
+        this.loadTimer();
+        this.startTimer();
+      }
+
+      disconnectedCallback() {
+        if (this.interval) {
+          clearInterval(this.interval);
+        }
+      }
+
+      loadTimer() {
+        const stored = localStorage.getItem('ai-timer-{{ ai_gen_id }}');
+        if (stored) {
+          const data = JSON.parse(stored);
+          const now = Date.now();
+          const elapsed = Math.floor((now - data.startTime) / 1000);
+          this.timeLeft = Math.max(0, this.duration - elapsed);
+        } else {
+          this.timeLeft = this.duration;
+          this.saveTimer();
+        }
+      }
+
+      saveTimer() {
+        localStorage.setItem('ai-timer-{{ ai_gen_id }}', JSON.stringify({
+          startTime: Date.now()
+        }));
+      }
+
+      startTimer() {
+        this.updateDisplay();
+        this.interval = setInterval(() => {
+          if (this.timeLeft > 0) {
+            this.timeLeft--;
+            this.updateDisplay();
+          } else {
+            this.resetTimer();
+          }
+        }, 1000);
+      }
+
+      updateDisplay() {
+        const hours = Math.floor(this.timeLeft / 3600);
+        const minutes = Math.floor((this.timeLeft % 3600) / 60);
+        const seconds = this.timeLeft % 60;
+
+        const prevHours = this.hoursEl.textContent;
+        const prevMinutes = this.minutesEl.textContent;
+        const prevSeconds = this.secondsEl.textContent;
+
+        const newHours = String(hours).padStart(2, '0');
+        const newMinutes = String(minutes).padStart(2, '0');
+        const newSeconds = String(seconds).padStart(2, '0');
+
+        if (prevHours !== newHours) {
+          this.hoursEl.textContent = newHours;
+          this.hoursEl.classList.add('updating');
+          setTimeout(() => this.hoursEl.classList.remove('updating'), 600);
+        }
+
+        if (prevMinutes !== newMinutes) {
+          this.minutesEl.textContent = newMinutes;
+          this.minutesEl.classList.add('updating');
+          setTimeout(() => this.minutesEl.classList.remove('updating'), 600);
+        }
+
+        if (prevSeconds !== newSeconds) {
+          this.secondsEl.textContent = newSeconds;
+          this.secondsEl.classList.add('updating');
+          setTimeout(() => this.secondsEl.classList.remove('updating'), 600);
+        }
+      }
+
+      resetTimer() {
+        this.timeLeft = this.duration;
+        localStorage.removeItem('ai-timer-{{ ai_gen_id }}');
+        this.saveTimer();
+        this.updateDisplay();
+      }
+    }
+
+    customElements.define('countdown-timer-{{ ai_gen_id }}', CountdownTimer{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Countdown timer header",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Padding horizontal",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Margin top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Margin bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "text_rows_gap",
+      "label": "Gap between text rows",
+      "min": -10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Text row 1"
+    },
+    {
+      "type": "richtext",
+      "id": "text_row_1",
+      "label": "Text",
+      "default": "<p>Limited time offer!</p>"
+    },
+    {
+      "type": "range",
+      "id": "text_row_1_size",
+      "label": "Size",
+      "min": 12,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "text_row_1_line_height",
+      "label": "Line height",
+      "min": 0.8,
+      "max": 2,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "type": "select",
+      "id": "text_row_1_weight",
+      "label": "Weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi-bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "color",
+      "id": "text_row_1_color",
+      "label": "Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_row_1_italic",
+      "label": "Italic",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_row_1_uppercase",
+      "label": "Uppercase",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Text row 2"
+    },
+    {
+      "type": "richtext",
+      "id": "text_row_2",
+      "label": "Text",
+      "default": "<p>Get 20% off your order</p>"
+    },
+    {
+      "type": "range",
+      "id": "text_row_2_size",
+      "label": "Size",
+      "min": 12,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "text_row_2_line_height",
+      "label": "Line height",
+      "min": 0.8,
+      "max": 2,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "type": "select",
+      "id": "text_row_2_weight",
+      "label": "Weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi-bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "color",
+      "id": "text_row_2_color",
+      "label": "Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_row_2_italic",
+      "label": "Italic",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_row_2_uppercase",
+      "label": "Uppercase",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Text row 3"
+    },
+    {
+      "type": "richtext",
+      "id": "text_row_3",
+      "label": "Text"
+    },
+    {
+      "type": "range",
+      "id": "text_row_3_size",
+      "label": "Size",
+      "min": 12,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "text_row_3_line_height",
+      "label": "Line height",
+      "min": 0.8,
+      "max": 2,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "type": "select",
+      "id": "text_row_3_weight",
+      "label": "Weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi-bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "color",
+      "id": "text_row_3_color",
+      "label": "Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_row_3_italic",
+      "label": "Italic",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "text_row_3_uppercase",
+      "label": "Uppercase",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Timer settings"
+    },
+    {
+      "type": "range",
+      "id": "timer_duration",
+      "label": "Timer duration",
+      "min": 5,
+      "max": 60,
+      "step": 5,
+      "unit": "min",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "timer_size",
+      "label": "Timer size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "animation",
+      "label": "Animation style",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "pulse",
+          "label": "Pulse"
+        },
+        {
+          "value": "bounce",
+          "label": "Bounce"
+        },
+        {
+          "value": "glow",
+          "label": "Glow"
+        },
+        {
+          "value": "flip",
+          "label": "Flip"
+        },
+        {
+          "value": "shake",
+          "label": "Shake"
+        },
+        {
+          "value": "rainbow",
+          "label": "Rainbow"
+        }
+      ],
+      "default": "pulse"
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        {
+          "value": "stacked",
+          "label": "Stacked"
+        },
+        {
+          "value": "side_by_side",
+          "label": "Side by side"
+        }
+      ],
+      "default": "stacked"
+    },
+    {
+      "type": "select",
+      "id": "mobile_timer_columns",
+      "label": "Mobile timer columns",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 column"
+        },
+        {
+          "value": "2",
+          "label": "2 columns"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_gradient",
+      "label": "Use gradient background",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ff5801"
+    },
+    {
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Background gradient",
+      "default": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    },
+    {
+      "type": "color",
+      "id": "timer_bg_color",
+      "label": "Timer background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "timer_text_color",
+      "label": "Timer text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "timer_label_color",
+      "label": "Timer label color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Countdown timer header"
+    }
+  ]
+}
+{% endschema %}

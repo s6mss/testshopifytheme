@@ -1,0 +1,1023 @@
+{% doc %}
+  @prompt
+    a list of several rows in a nice gradient box allowing for FAQs with accompanying icons. Up to 20 rows possible. Mobile and desktop optimised.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-faq-container-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .ai-faq-list-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: {{ block.settings.item_spacing }}px;
+  }
+
+  .ai-faq-item-{{ ai_gen_id }} {
+    background: {{ block.settings.gradient_start }};
+    background: linear-gradient({{ block.settings.gradient_direction }}, {{ block.settings.gradient_start }}, {{ block.settings.gradient_end }});
+    border-radius: {{ block.settings.border_radius }}px;
+    padding: {{ block.settings.item_padding }}px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .ai-faq-item-{{ ai_gen_id }}:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-faq-item-header-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: {{ block.settings.icon_spacing }}px;
+  }
+
+  .ai-faq-icon-{{ ai_gen_id }} {
+    flex-shrink: 0;
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: {{ block.settings.icon_background }};
+    border-radius: {{ block.settings.icon_border_radius }}px;
+    color: {{ block.settings.icon_color }};
+  }
+
+  .ai-faq-icon-{{ ai_gen_id }} svg {
+    width: calc({{ block.settings.icon_size }}px * 0.6);
+    height: calc({{ block.settings.icon_size }}px * 0.6);
+  }
+
+  .ai-faq-content-{{ ai_gen_id }} {
+    flex-grow: 1;
+  }
+
+  .ai-faq-question-{{ ai_gen_id }} {
+    margin: 0;
+    font-size: {{ block.settings.question_font_size }}px;
+    font-weight: {{ block.settings.question_font_weight }};
+    color: {{ block.settings.question_color }};
+    line-height: 1.4;
+  }
+
+  .ai-faq-answer-{{ ai_gen_id }} {
+    margin: {{ block.settings.answer_spacing }}px 0 0 0;
+    font-size: {{ block.settings.answer_font_size }}px;
+    color: {{ block.settings.answer_color }};
+    line-height: 1.6;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, margin-top 0.3s ease;
+  }
+
+  .ai-faq-item-{{ ai_gen_id }}.active .ai-faq-answer-{{ ai_gen_id }} {
+    max-height: 500px;
+  }
+
+  .ai-faq-toggle-{{ ai_gen_id }} {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: {{ block.settings.toggle_color }};
+    transition: transform 0.3s ease;
+  }
+
+  .ai-faq-item-{{ ai_gen_id }}.active .ai-faq-toggle-{{ ai_gen_id }} {
+    transform: rotate(180deg);
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-faq-container-{{ ai_gen_id }} {
+      width: 100%;
+    }
+
+    .ai-faq-item-{{ ai_gen_id }} {
+      padding: {{ block.settings.item_padding | times: 0.75 }}px;
+    }
+
+    .ai-faq-question-{{ ai_gen_id }} {
+      font-size: {{ block.settings.question_font_size | times: 0.9 }}px;
+    }
+
+    .ai-faq-answer-{{ ai_gen_id }} {
+      font-size: {{ block.settings.answer_font_size | times: 0.9 }}px;
+    }
+
+    .ai-faq-icon-{{ ai_gen_id }} {
+      width: {{ block.settings.icon_size | times: 0.85 }}px;
+      height: {{ block.settings.icon_size | times: 0.85 }}px;
+    }
+  }
+{% endstyle %}
+
+<faq-accordion-{{ ai_gen_id }} class="ai-faq-container-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-faq-list-{{ ai_gen_id }}">
+    {% for i in (1..20) %}
+      {% liquid
+        assign question_key = 'faq_' | append: i | append: '_question'
+        assign answer_key = 'faq_' | append: i | append: '_answer'
+        assign icon_key = 'faq_' | append: i | append: '_icon'
+        
+        assign question = block.settings[question_key]
+        assign answer = block.settings[answer_key]
+        assign icon = block.settings[icon_key]
+      %}
+
+      {% if question != blank and answer != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-index="{{ i }}">
+          <div class="ai-faq-item-header-{{ ai_gen_id }}">
+            <div class="ai-faq-icon-{{ ai_gen_id }}">
+              {% case icon %}
+                {% when 'question' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                {% when 'info' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                {% when 'check' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                {% when 'star' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                {% when 'heart' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                {% when 'lightning' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+                    <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
+                  </svg>
+                {% when 'shield' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                {% when 'gift' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                  </svg>
+                {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+              {% endcase %}
+            </div>
+            <div class="ai-faq-content-{{ ai_gen_id }}">
+              <h3 class="ai-faq-question-{{ ai_gen_id }}">{{ question }}</h3>
+              <div class="ai-faq-answer-{{ ai_gen_id }}">{{ answer }}</div>
+            </div>
+            <div class="ai-faq-toggle-{{ ai_gen_id }}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</faq-accordion-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class FaqAccordion{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.items = this.querySelectorAll('.ai-faq-item-{{ ai_gen_id }}');
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.items.forEach((item) => {
+          item.addEventListener('click', () => {
+            const isActive = item.classList.contains('active');
+            
+            if (isActive) {
+              item.classList.remove('active');
+            } else {
+              this.items.forEach((otherItem) => {
+                otherItem.classList.remove('active');
+              });
+              item.classList.add('active');
+            }
+          });
+        });
+      }
+    }
+
+    customElements.define('faq-accordion-{{ ai_gen_id }}', FaqAccordion{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "FAQ gradient list",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "item_spacing",
+      "label": "Space between items",
+      "min": 8,
+      "max": 32,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "item_padding",
+      "label": "Item padding",
+      "min": 12,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Gradient style"
+    },
+    {
+      "type": "color",
+      "id": "gradient_start",
+      "label": "Gradient start color",
+      "default": "#667eea"
+    },
+    {
+      "type": "color",
+      "id": "gradient_end",
+      "label": "Gradient end color",
+      "default": "#764ba2"
+    },
+    {
+      "type": "select",
+      "id": "gradient_direction",
+      "label": "Gradient direction",
+      "options": [
+        { "value": "135deg", "label": "Diagonal" },
+        { "value": "90deg", "label": "Left to right" },
+        { "value": "180deg", "label": "Top to bottom" },
+        { "value": "45deg", "label": "Diagonal reverse" }
+      ],
+      "default": "135deg"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Icon style"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 32,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "icon_spacing",
+      "label": "Icon spacing",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "icon_background",
+      "label": "Icon background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
+      "default": "#667eea"
+    },
+    {
+      "type": "range",
+      "id": "icon_border_radius",
+      "label": "Icon border radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Text style"
+    },
+    {
+      "type": "range",
+      "id": "question_font_size",
+      "label": "Question font size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "select",
+      "id": "question_font_weight",
+      "label": "Question font weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "question_color",
+      "label": "Question color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "answer_font_size",
+      "label": "Answer font size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "answer_color",
+      "label": "Answer color",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "range",
+      "id": "answer_spacing",
+      "label": "Answer top spacing",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "toggle_color",
+      "label": "Toggle icon color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 1"
+    },
+    {
+      "type": "text",
+      "id": "faq_1_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_1_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_1_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "question"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 2"
+    },
+    {
+      "type": "text",
+      "id": "faq_2_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_2_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_2_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "info"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 3"
+    },
+    {
+      "type": "text",
+      "id": "faq_3_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_3_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_3_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "check"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 4"
+    },
+    {
+      "type": "text",
+      "id": "faq_4_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_4_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_4_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "star"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 5"
+    },
+    {
+      "type": "text",
+      "id": "faq_5_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_5_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_5_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "heart"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 6"
+    },
+    {
+      "type": "text",
+      "id": "faq_6_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_6_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_6_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "lightning"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 7"
+    },
+    {
+      "type": "text",
+      "id": "faq_7_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_7_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_7_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "shield"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 8"
+    },
+    {
+      "type": "text",
+      "id": "faq_8_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_8_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_8_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "gift"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 9"
+    },
+    {
+      "type": "text",
+      "id": "faq_9_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_9_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_9_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "question"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 10"
+    },
+    {
+      "type": "text",
+      "id": "faq_10_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_10_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_10_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "info"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 11"
+    },
+    {
+      "type": "text",
+      "id": "faq_11_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_11_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_11_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "check"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 12"
+    },
+    {
+      "type": "text",
+      "id": "faq_12_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_12_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_12_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "star"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 13"
+    },
+    {
+      "type": "text",
+      "id": "faq_13_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_13_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_13_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "heart"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 14"
+    },
+    {
+      "type": "text",
+      "id": "faq_14_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_14_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_14_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "lightning"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 15"
+    },
+    {
+      "type": "text",
+      "id": "faq_15_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_15_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_15_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "shield"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 16"
+    },
+    {
+      "type": "text",
+      "id": "faq_16_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_16_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_16_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "gift"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 17"
+    },
+    {
+      "type": "text",
+      "id": "faq_17_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_17_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_17_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "question"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 18"
+    },
+    {
+      "type": "text",
+      "id": "faq_18_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_18_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_18_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "info"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 19"
+    },
+    {
+      "type": "text",
+      "id": "faq_19_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_19_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_19_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "check"
+    },
+    {
+      "type": "header",
+      "content": "FAQ 20"
+    },
+    {
+      "type": "text",
+      "id": "faq_20_question",
+      "label": "Question"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_20_answer",
+      "label": "Answer"
+    },
+    {
+      "type": "select",
+      "id": "faq_20_icon",
+      "label": "Icon",
+      "options": [
+        { "value": "question", "label": "Question mark" },
+        { "value": "info", "label": "Info" },
+        { "value": "check", "label": "Check" },
+        { "value": "star", "label": "Star" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "lightning", "label": "Lightning" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "gift", "label": "Gift" }
+      ],
+      "default": "star"
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ gradient list"
+    }
+  ]
+}
+{% endschema %}

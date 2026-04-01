@@ -1,0 +1,102 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "use_theme_colors": true,
+        "padding_top": 28,
+        "padding_bottom": 28
+      }
+    },
+    "1774784764e3f6ae18": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_5b4068b_qwGzhD": {
+          "type": "ai_gen_block_5b4068b",
+          "settings": {
+            "heading": "Track Your Order",
+            "heading_size": 32,
+            "desktop_width_percent": 100,
+            "button_text": "Locate My Order",
+            "enable_track_button_globe_icon": true,
+            "enable_track_button_globe_pulse": true,
+            "input_placeholder": "Enter Your Tracking Number",
+            "input_border_radius": 8,
+            "button_border_radius": 8,
+            "validation_text": "Order verified",
+            "stage_1_title": "Order Confirmed",
+            "stage_1_description": "Your order has been received and confirmed",
+            "stage_2_title": "Awaiting Dispatch",
+            "stage_2_description": "Your order is being prepared for shipment",
+            "stage_3_title": "Delivered",
+            "stage_3_description": "Your order has been delivered",
+            "email_button_text": "Contact Support Team",
+            "email_button_link": "mailto:support@sixxo.uk?subject=Where%20Is%20My%20Order%20(%23PASTETRACKINGHERE)&body=Can%20I%20have%20more%20information%20on%20where%20my%20order%20%5B%23pastetrackinghere%5D%20is%3F%0D%0A%0D%0AThank%20you.",
+            "enable_email_button_globe_icon": false,
+            "enable_email_button_globe_pulse": false,
+            "background_color": "#f9f9f9",
+            "text_color": "#000000",
+            "input_border_color": "#dddddd",
+            "button_color": "#016bff",
+            "button_text_color": "#ffffff",
+            "button_hover_color": "#0d449c",
+            "validation_bg_color": "#e8f5e9",
+            "validation_text_color": "#2e7d32",
+            "validation_icon_color": "#2e7d32",
+            "timeline_line_color": "#e0e0e0",
+            "timeline_icon_bg_active": "#2e7d32",
+            "timeline_icon_bg_inactive": "#e0e0e0",
+            "timeline_icon_color_active": "#ffffff",
+            "timeline_icon_color_inactive": "#999999",
+            "timeline_desc_color": "#666666",
+            "email_button_color": "#444444",
+            "email_button_text_color": "#ffffff",
+            "email_button_hover_color": "#333333",
+            "border_radius": 12
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_5b4068b_qwGzhD"
+      ],
+      "settings": {}
+    },
+    "divider_WeXCFA": {
+      "type": "divider",
+      "name": "Divider",
+      "settings": {
+        "use_theme_colors": true,
+        "divider_style": "wavy",
+        "background_color": "rgba(0,0,0,0)",
+        "flip_direction": false,
+        "keep_proportion": false,
+        "color": "#e0e0e0",
+        "height": 50,
+        "show_border": false,
+        "border_color": "#e0e0e0",
+        "border_width": 1,
+        "border_style": "solid",
+        "use_gradient": false,
+        "gradient_background": "linear-gradient(135deg, rgba(102, 126, 234, 1), rgba(118, 75, 162, 1) 100%)",
+        "padding_top": 20,
+        "padding_bottom": 20
+      }
+    }
+  },
+  "order": [
+    "main",
+    "1774784764e3f6ae18",
+    "divider_WeXCFA"
+  ]
+}

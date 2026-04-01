@@ -1,0 +1,1330 @@
+{% doc %}
+  @prompt
+    a slider that is controlled on mobile / desktop by scrolling horizontally. on mobile 2 columns are allowed, on desktop up to 5. up to 20 products can pre-fill this selection. it enables the custom to add other products to cart, with a variant and quantity selector above on the same line, above the add to cart, price shown also, size and amount of row variant/quantity selectors take up is also changeable, can you make it so there can be 2-5 columns selected for both mobile and pc. also, make sure that the variants and quantity are both selectable for users. and it must be nice and compact. with a title option.
+    
+    Can you make the images 1x1
+    
+    also, make sure that the add to cart button has a mini tag in its top right corner that is red or any colour i select, that i can customise to show a discount will be eligible. it shimmers animation. i also can specify a discount code to apply automatically when product is added to cart through this method, in my settings, so i want more extensive animation options on the sale button please (red one) and sizing / shape options for it too!, can you automatically hide the product of the product page that this slider is placed on? ..., can you make the price editable so it shows the discounted version of the price also for each product, and the quantity without 'Qty', just the numbers. , I need the sale price also next to the normal price, in red... it's the discounted version..., there should be a red box next to the 'original' price with the calculated 10% off price, the original price has a strikethrough for each product., make it so I can select the percentage that the discounted price will reflect. give me customisation options., can you give me the option to edit the value of each product's sale price. please
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-slider-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    padding: 20px 0;
+  }
+
+  .ai-product-slider__title-{{ ai_gen_id }} {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    text-align: center;
+    color: {{ block.settings.title_color }};
+  }
+
+  .ai-product-slider__container-{{ ai_gen_id }} {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: {{ block.settings.scrollbar_color }} transparent;
+  }
+
+  .ai-product-slider__container-{{ ai_gen_id }}::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .ai-product-slider__container-{{ ai_gen_id }}::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .ai-product-slider__container-{{ ai_gen_id }}::-webkit-scrollbar-thumb {
+    background-color: {{ block.settings.scrollbar_color }};
+    border-radius: 4px;
+  }
+
+  .ai-product-slider__grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - ({{ block.settings.columns_mobile | minus: 1 }} * 12px)) / {{ block.settings.columns_mobile }});
+    gap: 12px;
+    padding-bottom: 8px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-product-slider__grid-{{ ai_gen_id }} {
+      grid-auto-columns: calc((100% - ({{ block.settings.columns_desktop | minus: 1 }} * 16px)) / {{ block.settings.columns_desktop }});
+      gap: 16px;
+    }
+  }
+
+  .ai-product-slider__item-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    background-color: {{ block.settings.card_background }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    padding: 12px;
+    border: 1px solid {{ block.settings.card_border_color }};
+  }
+
+  .ai-product-slider__item-{{ ai_gen_id }}.ai-hidden-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-product-slider__image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+  }
+
+  .ai-product-slider__image-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-product-slider__title-text-{{ ai_gen_id }} {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: {{ block.settings.product_title_color }};
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .ai-product-slider__price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_font_size }}px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: {{ block.settings.price_color }};
+    display: flex;
+    align-items: center;
+    gap: {{ block.settings.price_gap }}px;
+    flex-wrap: wrap;
+  }
+
+  .ai-product-slider__price-regular-{{ ai_gen_id }} {
+    text-decoration: line-through;
+    opacity: {{ block.settings.original_price_opacity | divided_by: 100.0 }};
+    font-size: {{ block.settings.original_price_font_size }}px;
+    font-weight: {{ block.settings.original_price_font_weight }};
+  }
+
+  .ai-product-slider__price-sale-{{ ai_gen_id }} {
+    background-color: {{ block.settings.sale_price_background }};
+    color: {{ block.settings.sale_price_color }};
+    padding: {{ block.settings.sale_price_padding_y }}px {{ block.settings.sale_price_padding_x }}px;
+    border-radius: {{ block.settings.sale_price_border_radius }}px;
+    font-size: {{ block.settings.sale_price_font_size }}px;
+    font-weight: {{ block.settings.sale_price_font_weight }};
+    {% if block.settings.sale_price_border_width > 0 %}
+      border: {{ block.settings.sale_price_border_width }}px solid {{ block.settings.sale_price_border_color }};
+    {% endif %}
+  }
+
+  .ai-product-slider__selectors-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .ai-product-slider__variant-select-{{ ai_gen_id }},
+  .ai-product-slider__quantity-select-{{ ai_gen_id }} {
+    flex: 1;
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid {{ block.settings.selector_border_color }};
+    border-radius: 4px;
+    background-color: {{ block.settings.selector_background }};
+    font-size: 13px;
+    color: {{ block.settings.selector_text_color }};
+  }
+
+  .ai-product-slider__variant-select-{{ ai_gen_id }} {
+    flex: {{ block.settings.variant_width }};
+  }
+
+  .ai-product-slider__quantity-select-{{ ai_gen_id }} {
+    flex: {{ block.settings.quantity_width }};
+  }
+
+  .ai-product-slider__add-to-cart-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    padding: {{ block.settings.badge_padding_y }}px {{ block.settings.badge_padding_x }}px;
+    background-color: {{ block.settings.button_background }};
+    color: {{ block.settings.button_text_color }};
+    border: {{ block.settings.badge_border_width }}px solid {{ block.settings.badge_border_color }};
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.badge_font_size }}px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: visible;
+  }
+
+  .ai-product-slider__add-to-cart-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_background }};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .ai-product-slider__add-to-cart-{{ ai_gen_id }}:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .ai-product-slider__badge-{{ ai_gen_id }} {
+    position: absolute;
+    top: {{ block.settings.badge_position_y }}px;
+    right: {{ block.settings.badge_position_x }}px;
+    background-color: {{ block.settings.badge_background }};
+    color: {{ block.settings.badge_text_color }};
+    font-size: {{ block.settings.badge_text_size }}px;
+    font-weight: 700;
+    padding: {{ block.settings.badge_inner_padding_y }}px {{ block.settings.badge_inner_padding_x }}px;
+    border-radius: {{ block.settings.badge_border_radius }}px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    {% if block.settings.badge_animation == 'shimmer' %}
+      animation: ai-shimmer-{{ ai_gen_id }} {{ block.settings.badge_animation_speed }}s infinite;
+    {% elsif block.settings.badge_animation == 'pulse' %}
+      animation: ai-pulse-{{ ai_gen_id }} {{ block.settings.badge_animation_speed }}s infinite;
+    {% elsif block.settings.badge_animation == 'bounce' %}
+      animation: ai-bounce-{{ ai_gen_id }} {{ block.settings.badge_animation_speed }}s infinite;
+    {% elsif block.settings.badge_animation == 'glow' %}
+      animation: ai-glow-{{ ai_gen_id }} {{ block.settings.badge_animation_speed }}s infinite;
+    {% elsif block.settings.badge_animation == 'shake' %}
+      animation: ai-shake-{{ ai_gen_id }} {{ block.settings.badge_animation_speed }}s infinite;
+    {% elsif block.settings.badge_animation == 'rotate' %}
+      animation: ai-rotate-{{ ai_gen_id }} {{ block.settings.badge_animation_speed }}s infinite;
+    {% elsif block.settings.badge_animation == 'swing' %}
+      animation: ai-swing-{{ ai_gen_id }} {{ block.settings.badge_animation_speed }}s infinite;
+    {% endif %}
+  }
+
+  @keyframes ai-shimmer-{{ ai_gen_id }} {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes ai-pulse-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes ai-bounce-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  @keyframes ai-glow-{{ ai_gen_id }} {
+    0%, 100% {
+      box-shadow: 0 0 5px {{ block.settings.badge_background }}, 0 0 10px {{ block.settings.badge_background }};
+    }
+    50% {
+      box-shadow: 0 0 10px {{ block.settings.badge_background }}, 0 0 20px {{ block.settings.badge_background }}, 0 0 30px {{ block.settings.badge_background }};
+    }
+  }
+
+  @keyframes ai-shake-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-3px) rotate(-5deg);
+    }
+    75% {
+      transform: translateX(3px) rotate(5deg);
+    }
+  }
+
+  @keyframes ai-rotate-{{ ai_gen_id }} {
+    0% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(-10deg);
+    }
+    75% {
+      transform: rotate(10deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+
+  @keyframes ai-swing-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    20% {
+      transform: rotate(15deg);
+    }
+    40% {
+      transform: rotate(-10deg);
+    }
+    60% {
+      transform: rotate(5deg);
+    }
+    80% {
+      transform: rotate(-5deg);
+    }
+  }
+
+  .ai-product-slider__empty-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+    font-size: 14px;
+  }
+{% endstyle %}
+
+<product-slider-{{ ai_gen_id }} 
+  class="ai-product-slider-{{ ai_gen_id }}" 
+  data-current-product-id="{{ product.id }}"
+  data-hide-current="{{ block.settings.hide_current_product }}"
+  {{ block.shopify_attributes }}
+>
+  {% if block.settings.title != blank %}
+    <h2 class="ai-product-slider__title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+  {% endif %}
+
+  {% assign has_products = false %}
+  {% for i in (1..20) %}
+    {% assign product_key = 'product_' | append: i %}
+    {% if block.settings[product_key] != blank %}
+      {% assign has_products = true %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+
+  {% if has_products %}
+    <div class="ai-product-slider__container-{{ ai_gen_id }}">
+      <div class="ai-product-slider__grid-{{ ai_gen_id }}">
+        {% for i in (1..20) %}
+          {% assign product_key = 'product_' | append: i %}
+          {% assign sale_price_key = 'product_' | append: i | append: '_sale_price' %}
+          {% assign slider_product = block.settings[product_key] %}
+          {% assign custom_sale_price = block.settings[sale_price_key] %}
+          
+          {% if slider_product != blank %}
+            {% assign should_hide = false %}
+            {% if block.settings.hide_current_product and product.id == slider_product.id %}
+              {% assign should_hide = true %}
+            {% endif %}
+
+            {% assign first_variant = slider_product.selected_or_first_available_variant %}
+
+            <div 
+              class="ai-product-slider__item-{{ ai_gen_id }}{% if should_hide %} ai-hidden-{{ ai_gen_id }}{% endif %}" 
+              data-product-id="{{ slider_product.id }}"
+              data-custom-sale-price="{{ custom_sale_price }}"
+            >
+              <div class="ai-product-slider__image-wrapper-{{ ai_gen_id }}">
+                {% if slider_product.featured_image %}
+                  <img
+                    src="{{ slider_product.featured_image | image_url: width: 400 }}"
+                    alt="{{ slider_product.featured_image.alt | escape }}"
+                    class="ai-product-slider__image-{{ ai_gen_id }}"
+                    loading="lazy"
+                    width="400"
+                    height="400"
+                  >
+                {% else %}
+                  <div class="ai-product-slider__image-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <h3 class="ai-product-slider__title-text-{{ ai_gen_id }}">{{ slider_product.title }}</h3>
+              
+              <div class="ai-product-slider__price-{{ ai_gen_id }}" data-price-container>
+                <span class="ai-product-slider__price-regular-{{ ai_gen_id }}" data-original-price>{{ first_variant.price | money }}</span>
+                <span class="ai-product-slider__price-sale-{{ ai_gen_id }}" data-discounted-price>
+                  {% if custom_sale_price != blank %}
+                    {{ custom_sale_price | times: 100 | money }}
+                  {% else %}
+                    {{ first_variant.price | money }}
+                  {% endif %}
+                </span>
+              </div>
+
+              <div class="ai-product-slider__selectors-{{ ai_gen_id }}">
+                {% if slider_product.has_only_default_variant %}
+                  <input type="hidden" class="ai-variant-id-{{ ai_gen_id }}" value="{{ first_variant.id }}" data-price="{{ first_variant.price }}">
+                {% else %}
+                  <select class="ai-product-slider__variant-select-{{ ai_gen_id }} ai-variant-select-{{ ai_gen_id }}" data-product-id="{{ slider_product.id }}">
+                    {% for variant in slider_product.variants %}
+                      <option 
+                        value="{{ variant.id }}" 
+                        {% unless variant.available %}disabled{% endunless %}
+                        data-price="{{ variant.price }}"
+                        {% if variant.id == first_variant.id %}selected{% endif %}
+                      >
+                        {{ variant.title }}{% unless variant.available %} - Sold out{% endunless %}
+                      </option>
+                    {% endfor %}
+                  </select>
+                {% endif %}
+
+                <select class="ai-product-slider__quantity-select-{{ ai_gen_id }} ai-quantity-select-{{ ai_gen_id }}">
+                  {% for qty in (1..10) %}
+                    <option value="{{ qty }}">{{ qty }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <button 
+                class="ai-product-slider__add-to-cart-{{ ai_gen_id }} ai-add-to-cart-btn-{{ ai_gen_id }}"
+                data-product-id="{{ slider_product.id }}"
+                data-variant-id="{{ first_variant.id }}"
+                {% unless slider_product.available %}disabled{% endunless %}
+              >
+                {% if block.settings.badge_text != blank %}
+                  <span class="ai-product-slider__badge-{{ ai_gen_id }}">{{ block.settings.badge_text }}</span>
+                {% endif %}
+                {% if slider_product.available %}
+                  {{ block.settings.button_text }}
+                {% else %}
+                  Sold out
+                {% endif %}
+              </button>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <div class="ai-product-slider__empty-{{ ai_gen_id }}">
+      Add products to display in this slider
+    </div>
+  {% endif %}
+</product-slider-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ProductSlider{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.discountCode = '{{ block.settings.discount_code }}';
+        this.currentProductId = this.dataset.currentProductId;
+        this.hideCurrentProduct = this.dataset.hideCurrent === 'true';
+      }
+
+      connectedCallback() {
+        this.hideCurrentProductIfNeeded();
+        this.setupEventListeners();
+      }
+
+      hideCurrentProductIfNeeded() {
+        if (this.hideCurrentProduct && this.currentProductId) {
+          const items = this.querySelectorAll('.ai-product-slider__item-{{ ai_gen_id }}');
+          items.forEach((item) => {
+            if (item.dataset.productId === this.currentProductId) {
+              item.classList.add('ai-hidden-{{ ai_gen_id }}');
+            }
+          });
+        }
+      }
+
+      setupEventListeners() {
+        const variantSelects = this.querySelectorAll('.ai-variant-select-{{ ai_gen_id }}');
+        const addToCartButtons = this.querySelectorAll('.ai-add-to-cart-btn-{{ ai_gen_id }}');
+
+        variantSelects.forEach((select) => {
+          select.addEventListener('change', (e) => {
+            const variantId = e.target.value;
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const price = parseFloat(selectedOption.dataset.price);
+            const item = e.target.closest('.ai-product-slider__item-{{ ai_gen_id }}');
+            const button = item.querySelector('.ai-add-to-cart-btn-{{ ai_gen_id }}');
+            const originalPriceElement = item.querySelector('[data-original-price]');
+            const discountedPriceElement = item.querySelector('[data-discounted-price]');
+            const customSalePrice = parseFloat(item.dataset.customSalePrice);
+
+            button.dataset.variantId = variantId;
+
+            if (price && originalPriceElement) {
+              const formattedOriginalPrice = new Intl.NumberFormat('en-GB', {
+                style: 'currency',
+                currency: '{{ cart.currency.iso_code }}'
+              }).format(price / 100);
+
+              originalPriceElement.textContent = formattedOriginalPrice;
+
+              if (discountedPriceElement && customSalePrice && !isNaN(customSalePrice)) {
+                const formattedSalePrice = new Intl.NumberFormat('en-GB', {
+                  style: 'currency',
+                  currency: '{{ cart.currency.iso_code }}'
+                }).format(customSalePrice);
+                discountedPriceElement.textContent = formattedSalePrice;
+              } else if (discountedPriceElement) {
+                discountedPriceElement.textContent = formattedOriginalPrice;
+              }
+            }
+
+            if (selectedOption.disabled) {
+              button.disabled = true;
+              button.textContent = 'Sold out';
+            } else {
+              button.disabled = false;
+              button.innerHTML = '{% if block.settings.badge_text != blank %}<span class="ai-product-slider__badge-{{ ai_gen_id }}">{{ block.settings.badge_text }}</span>{% endif %}{{ block.settings.button_text }}';
+            }
+          });
+        });
+
+        addToCartButtons.forEach((button) => {
+          button.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            if (button.disabled) return;
+
+            const item = button.closest('.ai-product-slider__item-{{ ai_gen_id }}');
+            const variantSelect = item.querySelector('.ai-variant-select-{{ ai_gen_id }}');
+            const variantInput = item.querySelector('.ai-variant-id-{{ ai_gen_id }}');
+            const quantitySelect = item.querySelector('.ai-quantity-select-{{ ai_gen_id }}');
+            
+            const variantId = variantSelect ? variantSelect.value : variantInput.value;
+            const quantity = parseInt(quantitySelect.value);
+
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = 'Adding...';
+
+            try {
+              const formData = {
+                items: [{
+                  id: variantId,
+                  quantity: quantity
+                }]
+              };
+
+              const response = await fetch('/cart/add.js', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+              });
+
+              if (response.ok) {
+                if (this.discountCode && this.discountCode.trim() !== '') {
+                  try {
+                    await fetch('/discount/' + encodeURIComponent(this.discountCode.trim()));
+                  } catch (discountError) {
+                    console.log('Discount code application attempted');
+                  }
+                }
+
+                button.innerHTML = '✓ Added';
+                
+                setTimeout(() => {
+                  button.innerHTML = originalText;
+                  button.disabled = false;
+                }, 2000);
+
+                if (typeof window.refreshCart === 'function') {
+                  window.refreshCart();
+                }
+                
+                document.dispatchEvent(new CustomEvent('cart:refresh'));
+                
+                const cartDrawer = document.querySelector('cart-drawer');
+                if (cartDrawer && typeof cartDrawer.open === 'function') {
+                  cartDrawer.open();
+                }
+              } else {
+                throw new Error('Failed to add to cart');
+              }
+            } catch (error) {
+              console.error('Error adding to cart:', error);
+              button.innerHTML = 'Error - Try again';
+              setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+              }, 2000);
+            }
+          });
+        });
+      }
+    }
+
+    customElements.define('product-slider-{{ ai_gen_id }}', ProductSlider{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Product slider",
+  "settings": [
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "You may also like"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_current_product",
+      "label": "Hide current product",
+      "default": true,
+      "info": "Automatically hide the current product page's product from the slider"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "color",
+      "id": "scrollbar_color",
+      "label": "Scrollbar color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "header",
+      "content": "Card style"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border color",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Image border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "product_title_color",
+      "label": "Product title color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Pricing"
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "label": "Price container font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "price_gap",
+      "label": "Gap between prices",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Original price style"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Original price color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "original_price_font_size",
+      "label": "Original price font size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "original_price_font_weight",
+      "label": "Original price font weight",
+      "min": 300,
+      "max": 700,
+      "step": 100,
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "original_price_opacity",
+      "label": "Original price opacity",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Sale price style"
+    },
+    {
+      "type": "color",
+      "id": "sale_price_color",
+      "label": "Sale price text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "sale_price_background",
+      "label": "Sale price background",
+      "default": "#ff0000"
+    },
+    {
+      "type": "range",
+      "id": "sale_price_font_size",
+      "label": "Sale price font size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "sale_price_font_weight",
+      "label": "Sale price font weight",
+      "min": 300,
+      "max": 700,
+      "step": 100,
+      "default": 700
+    },
+    {
+      "type": "range",
+      "id": "sale_price_padding_y",
+      "label": "Sale price vertical padding",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "sale_price_padding_x",
+      "label": "Sale price horizontal padding",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "sale_price_border_radius",
+      "label": "Sale price border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "sale_price_border_width",
+      "label": "Sale price border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "sale_price_border_color",
+      "label": "Sale price border color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Selectors"
+    },
+    {
+      "type": "range",
+      "id": "variant_width",
+      "label": "Variant selector width",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "quantity_width",
+      "label": "Quantity selector width",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "selector_background",
+      "label": "Selector background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "selector_border_color",
+      "label": "Selector border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "color",
+      "id": "selector_text_color",
+      "label": "Selector text color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Add to cart"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background",
+      "label": "Button hover background",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "badge_padding_y",
+      "label": "Button vertical padding",
+      "min": 6,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "badge_padding_x",
+      "label": "Button horizontal padding",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "badge_font_size",
+      "label": "Button font size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "badge_border_width",
+      "label": "Button border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "badge_border_color",
+      "label": "Button border color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Discount badge"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge text",
+      "default": "SALE"
+    },
+    {
+      "type": "color",
+      "id": "badge_background",
+      "label": "Badge background",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "badge_text_size",
+      "label": "Badge text size",
+      "min": 8,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "badge_border_radius",
+      "label": "Badge border radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "badge_inner_padding_y",
+      "label": "Badge vertical padding",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "badge_inner_padding_x",
+      "label": "Badge horizontal padding",
+      "min": 4,
+      "max": 16,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "badge_position_y",
+      "label": "Badge vertical position",
+      "min": -20,
+      "max": 10,
+      "step": 2,
+      "unit": "px",
+      "default": -6
+    },
+    {
+      "type": "range",
+      "id": "badge_position_x",
+      "label": "Badge horizontal position",
+      "min": -20,
+      "max": 10,
+      "step": 2,
+      "unit": "px",
+      "default": -6
+    },
+    {
+      "type": "select",
+      "id": "badge_animation",
+      "label": "Badge animation",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "shimmer",
+          "label": "Shimmer"
+        },
+        {
+          "value": "pulse",
+          "label": "Pulse"
+        },
+        {
+          "value": "bounce",
+          "label": "Bounce"
+        },
+        {
+          "value": "glow",
+          "label": "Glow"
+        },
+        {
+          "value": "shake",
+          "label": "Shake"
+        },
+        {
+          "value": "rotate",
+          "label": "Rotate"
+        },
+        {
+          "value": "swing",
+          "label": "Swing"
+        }
+      ],
+      "default": "shimmer"
+    },
+    {
+      "type": "range",
+      "id": "badge_animation_speed",
+      "label": "Animation speed",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "unit": "s",
+      "default": 2
+    },
+    {
+      "type": "text",
+      "id": "discount_code",
+      "label": "Discount code",
+      "info": "Auto-apply this discount code when product is added to cart"
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "product",
+      "id": "product_1",
+      "label": "Product 1"
+    },
+    {
+      "type": "text",
+      "id": "product_1_sale_price",
+      "label": "Product 1 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_2",
+      "label": "Product 2"
+    },
+    {
+      "type": "text",
+      "id": "product_2_sale_price",
+      "label": "Product 2 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_3",
+      "label": "Product 3"
+    },
+    {
+      "type": "text",
+      "id": "product_3_sale_price",
+      "label": "Product 3 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_4",
+      "label": "Product 4"
+    },
+    {
+      "type": "text",
+      "id": "product_4_sale_price",
+      "label": "Product 4 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_5",
+      "label": "Product 5"
+    },
+    {
+      "type": "text",
+      "id": "product_5_sale_price",
+      "label": "Product 5 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_6",
+      "label": "Product 6"
+    },
+    {
+      "type": "text",
+      "id": "product_6_sale_price",
+      "label": "Product 6 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_7",
+      "label": "Product 7"
+    },
+    {
+      "type": "text",
+      "id": "product_7_sale_price",
+      "label": "Product 7 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_8",
+      "label": "Product 8"
+    },
+    {
+      "type": "text",
+      "id": "product_8_sale_price",
+      "label": "Product 8 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_9",
+      "label": "Product 9"
+    },
+    {
+      "type": "text",
+      "id": "product_9_sale_price",
+      "label": "Product 9 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_10",
+      "label": "Product 10"
+    },
+    {
+      "type": "text",
+      "id": "product_10_sale_price",
+      "label": "Product 10 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_11",
+      "label": "Product 11"
+    },
+    {
+      "type": "text",
+      "id": "product_11_sale_price",
+      "label": "Product 11 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_12",
+      "label": "Product 12"
+    },
+    {
+      "type": "text",
+      "id": "product_12_sale_price",
+      "label": "Product 12 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_13",
+      "label": "Product 13"
+    },
+    {
+      "type": "text",
+      "id": "product_13_sale_price",
+      "label": "Product 13 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_14",
+      "label": "Product 14"
+    },
+    {
+      "type": "text",
+      "id": "product_14_sale_price",
+      "label": "Product 14 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_15",
+      "label": "Product 15"
+    },
+    {
+      "type": "text",
+      "id": "product_15_sale_price",
+      "label": "Product 15 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_16",
+      "label": "Product 16"
+    },
+    {
+      "type": "text",
+      "id": "product_16_sale_price",
+      "label": "Product 16 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_17",
+      "label": "Product 17"
+    },
+    {
+      "type": "text",
+      "id": "product_17_sale_price",
+      "label": "Product 17 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_18",
+      "label": "Product 18"
+    },
+    {
+      "type": "text",
+      "id": "product_18_sale_price",
+      "label": "Product 18 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_19",
+      "label": "Product 19"
+    },
+    {
+      "type": "text",
+      "id": "product_19_sale_price",
+      "label": "Product 19 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    },
+    {
+      "type": "product",
+      "id": "product_20",
+      "label": "Product 20"
+    },
+    {
+      "type": "text",
+      "id": "product_20_sale_price",
+      "label": "Product 20 sale price",
+      "info": "Enter custom sale price (e.g., 19.99). Leave blank to show original price."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product slider"
+    }
+  ]
+}
+{% endschema %}

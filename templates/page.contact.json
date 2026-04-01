@@ -1,0 +1,54 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "use_theme_colors": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "form": {
+      "type": "contact-form",
+      "settings": {
+        "use_theme_colors": false,
+        "heading": "Contact Us",
+        "heading_size": "hxxl",
+        "validate_on_submit": true,
+        "show_success_message": true,
+        "auto_focus_errors": true,
+        "debounce_delay": 300,
+        "background_color": "#ffffff",
+        "heading_color": "#000000",
+        "text_color": "#000000",
+        "field_background_color": "#ffffff",
+        "field_border_color": "#e5e5e5",
+        "field_text_color": "#000000",
+        "placeholder_color": "#999999",
+        "button_background_color": "#fe0100",
+        "button_text_color": "#ffffff",
+        "button_hover_background_color": "#333333",
+        "success_color": "#28a745",
+        "error_color": "#dc3545",
+        "padding_left": 16,
+        "padding_right": 16,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    }
+  },
+  "order": [
+    "main",
+    "form"
+  ]
+}

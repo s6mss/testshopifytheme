@@ -1,0 +1,678 @@
+{% doc %}
+  @prompt
+    Sliding announcement bar that I can select gradient for, enables text size and multiple text inputs. Highly customisable sizing.
+    
+    Option for midnight countdown timer that resets at every 30 minutes. there are customisable animations for each second that passes. timer shows hours, minutes, seconds.  
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-announcement-bar-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    background: {% if block.settings.use_gradient %}{{ block.settings.gradient_background }}{% else %}{{ block.settings.background_color }}{% endif %};
+    padding: {{ block.settings.bar_padding_vertical }}px 0;
+  }
+
+  .ai-announcement-bar__wrapper-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: {{ block.settings.content_gap }}px;
+    position: relative;
+  }
+
+  .ai-announcement-bar__slider-{{ ai_gen_id }} {
+    overflow: hidden;
+    flex: 1;
+    max-width: 100%;
+  }
+
+  .ai-announcement-bar__track-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.text_spacing }}px;
+    animation: ai-slide-{{ ai_gen_id }} {{ block.settings.slide_speed }}s linear infinite;
+    will-change: transform;
+  }
+
+  .ai-announcement-bar__track-{{ ai_gen_id }}.paused {
+    animation-play-state: paused;
+  }
+
+  @keyframes ai-slide-{{ ai_gen_id }} {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .ai-announcement-bar__item-{{ ai_gen_id }} {
+    white-space: nowrap;
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.text_size }}px;
+    font-weight: {{ block.settings.text_weight }};
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    text-transform: {{ block.settings.text_transform }};
+  }
+
+  .ai-announcement-bar__timer-{{ ai_gen_id }} {
+    display: {% if block.settings.show_timer %}flex{% else %}none{% endif %};
+    align-items: center;
+    gap: {{ block.settings.timer_gap }}px;
+    color: {{ block.settings.timer_text_color }};
+    font-size: {{ block.settings.timer_size }}px;
+    font-weight: {{ block.settings.timer_weight }};
+    background: {{ block.settings.timer_background }};
+    padding: {{ block.settings.timer_padding_vertical }}px {{ block.settings.timer_padding_horizontal }}px;
+    border-radius: {{ block.settings.timer_border_radius }}px;
+    flex-shrink: 0;
+  }
+
+  .ai-announcement-bar__timer-unit-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .ai-announcement-bar__timer-value-{{ ai_gen_id }} {
+    font-size: {{ block.settings.timer_number_size }}px;
+    font-weight: {{ block.settings.timer_number_weight }};
+    line-height: 1;
+    min-width: {{ block.settings.timer_min_width }}px;
+    text-align: center;
+  }
+
+  .ai-announcement-bar__timer-value-{{ ai_gen_id }}.animate {
+    animation: ai-timer-pulse-{{ ai_gen_id }} {{ block.settings.timer_animation_duration }}s ease-out;
+  }
+
+  @keyframes ai-timer-pulse-{{ ai_gen_id }} {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    {% if block.settings.timer_animation == 'pulse' %}
+      50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+      }
+    {% elsif block.settings.timer_animation == 'bounce' %}
+      30% {
+        transform: translateY(-8px);
+      }
+      50% {
+        transform: translateY(0);
+      }
+      70% {
+        transform: translateY(-4px);
+      }
+    {% elsif block.settings.timer_animation == 'flash' %}
+      50% {
+        opacity: 0.3;
+      }
+    {% elsif block.settings.timer_animation == 'shake' %}
+      10%, 90% {
+        transform: translateX(-2px);
+      }
+      20%, 80% {
+        transform: translateX(2px);
+      }
+      30%, 50%, 70% {
+        transform: translateX(-2px);
+      }
+      40%, 60% {
+        transform: translateX(2px);
+      }
+    {% elsif block.settings.timer_animation == 'rotate' %}
+      50% {
+        transform: rotate(360deg);
+      }
+    {% elsif block.settings.timer_animation == 'flip' %}
+      50% {
+        transform: rotateX(180deg);
+      }
+    {% endif %}
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .ai-announcement-bar__timer-label-{{ ai_gen_id }} {
+    font-size: {{ block.settings.timer_label_size }}px;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-announcement-bar__timer-separator-{{ ai_gen_id }} {
+    font-size: {{ block.settings.timer_number_size }}px;
+    opacity: 0.6;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-announcement-bar-{{ ai_gen_id }} {
+      padding: {{ block.settings.bar_padding_vertical | times: 0.7 }}px 0;
+    }
+
+    .ai-announcement-bar__item-{{ ai_gen_id }} {
+      font-size: {{ block.settings.text_size | times: 0.85 }}px;
+    }
+
+    .ai-announcement-bar__timer-{{ ai_gen_id }} {
+      font-size: {{ block.settings.timer_size | times: 0.85 }}px;
+      padding: {{ block.settings.timer_padding_vertical | times: 0.7 }}px {{ block.settings.timer_padding_horizontal | times: 0.7 }}px;
+    }
+
+    .ai-announcement-bar__timer-value-{{ ai_gen_id }} {
+      font-size: {{ block.settings.timer_number_size | times: 0.85 }}px;
+    }
+
+    .ai-announcement-bar__timer-label-{{ ai_gen_id }} {
+      font-size: {{ block.settings.timer_label_size | times: 0.85 }}px;
+    }
+  }
+{% endstyle %}
+
+<announcement-bar-{{ ai_gen_id }}
+  class="ai-announcement-bar-{{ ai_gen_id }}"
+  data-reset-interval="{{ block.settings.timer_reset_minutes }}"
+  data-show-timer="{{ block.settings.show_timer }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-announcement-bar__wrapper-{{ ai_gen_id }}">
+    <div class="ai-announcement-bar__slider-{{ ai_gen_id }}">
+      <div class="ai-announcement-bar__track-{{ ai_gen_id }}" data-track>
+        {% liquid
+          assign text_items = ''
+          if block.settings.text_1 != blank
+            assign text_items = text_items | append: block.settings.text_1 | append: '||'
+          endif
+          if block.settings.text_2 != blank
+            assign text_items = text_items | append: block.settings.text_2 | append: '||'
+          endif
+          if block.settings.text_3 != blank
+            assign text_items = text_items | append: block.settings.text_3 | append: '||'
+          endif
+          if block.settings.text_4 != blank
+            assign text_items = text_items | append: block.settings.text_4 | append: '||'
+          endif
+          if block.settings.text_5 != blank
+            assign text_items = text_items | append: block.settings.text_5
+          endif
+
+          assign text_array = text_items | split: '||'
+        %}
+
+        {% for text in text_array %}
+          {% if text != blank %}
+            <span class="ai-announcement-bar__item-{{ ai_gen_id }}">{{ text }}</span>
+          {% endif %}
+        {% endfor %}
+
+        {% for text in text_array %}
+          {% if text != blank %}
+            <span class="ai-announcement-bar__item-{{ ai_gen_id }}">{{ text }}</span>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="ai-announcement-bar__timer-{{ ai_gen_id }}" data-timer>
+      <div class="ai-announcement-bar__timer-unit-{{ ai_gen_id }}">
+        <span class="ai-announcement-bar__timer-value-{{ ai_gen_id }}" data-hours>00</span>
+        <span class="ai-announcement-bar__timer-label-{{ ai_gen_id }}">{{ block.settings.hours_label }}</span>
+      </div>
+      <span class="ai-announcement-bar__timer-separator-{{ ai_gen_id }}">:</span>
+      <div class="ai-announcement-bar__timer-unit-{{ ai_gen_id }}">
+        <span class="ai-announcement-bar__timer-value-{{ ai_gen_id }}" data-minutes>00</span>
+        <span class="ai-announcement-bar__timer-label-{{ ai_gen_id }}">{{ block.settings.minutes_label }}</span>
+      </div>
+      <span class="ai-announcement-bar__timer-separator-{{ ai_gen_id }}">:</span>
+      <div class="ai-announcement-bar__timer-unit-{{ ai_gen_id }}">
+        <span class="ai-announcement-bar__timer-value-{{ ai_gen_id }}" data-seconds>00</span>
+        <span class="ai-announcement-bar__timer-label-{{ ai_gen_id }}">{{ block.settings.seconds_label }}</span>
+      </div>
+    </div>
+  </div>
+</announcement-bar-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class AnnouncementBar{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.track = this.querySelector('[data-track]');
+        this.timer = this.querySelector('[data-timer]');
+        this.hoursEl = this.querySelector('[data-hours]');
+        this.minutesEl = this.querySelector('[data-minutes]');
+        this.secondsEl = this.querySelector('[data-seconds]');
+        this.resetInterval = parseInt(this.dataset.resetInterval) || 30;
+        this.showTimer = this.dataset.showTimer === 'true';
+        this.countdownInterval = null;
+        this.endTime = null;
+      }
+
+      connectedCallback() {
+        if (this.showTimer) {
+          this.initTimer();
+        }
+
+        this.track.addEventListener('mouseenter', () => {
+          this.track.classList.add('paused');
+        });
+
+        this.track.addEventListener('mouseleave', () => {
+          this.track.classList.remove('paused');
+        });
+      }
+
+      initTimer() {
+        this.calculateEndTime();
+        this.updateTimer();
+        this.countdownInterval = setInterval(() => this.updateTimer(), 1000);
+      }
+
+      calculateEndTime() {
+        const now = new Date();
+        const currentMinutes = now.getMinutes();
+        const minutesToAdd = this.resetInterval - (currentMinutes % this.resetInterval);
+        
+        this.endTime = new Date(now.getTime() + minutesToAdd * 60000);
+        this.endTime.setSeconds(0);
+        this.endTime.setMilliseconds(0);
+      }
+
+      updateTimer() {
+        const now = new Date();
+        const diff = this.endTime - now;
+
+        if (diff <= 0) {
+          this.calculateEndTime();
+          return;
+        }
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        const prevSeconds = this.secondsEl.textContent;
+        const newSeconds = String(seconds).padStart(2, '0');
+
+        if (prevSeconds !== newSeconds) {
+          this.animateValue(this.secondsEl);
+        }
+
+        if (seconds === 59) {
+          this.animateValue(this.minutesEl);
+          if (minutes === 59) {
+            this.animateValue(this.hoursEl);
+          }
+        }
+
+        this.hoursEl.textContent = String(hours).padStart(2, '0');
+        this.minutesEl.textContent = String(minutes).padStart(2, '0');
+        this.secondsEl.textContent = newSeconds;
+      }
+
+      animateValue(element) {
+        element.classList.remove('animate');
+        void element.offsetWidth;
+        element.classList.add('animate');
+      }
+
+      disconnectedCallback() {
+        if (this.countdownInterval) {
+          clearInterval(this.countdownInterval);
+        }
+      }
+    }
+
+    customElements.define('announcement-bar-{{ ai_gen_id }}', AnnouncementBar{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Sliding announcement bar",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_gradient",
+      "label": "Use gradient background",
+      "default": true
+    },
+    {
+      "type": "color_background",
+      "id": "gradient_background",
+      "label": "Gradient background",
+      "default": "linear-gradient(90deg, rgba(255, 88, 1, 1), rgba(255, 136, 0, 1) 100%)"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Solid background color",
+      "default": "#ff5801"
+    },
+    {
+      "type": "range",
+      "id": "bar_padding_vertical",
+      "label": "Vertical padding",
+      "min": 5,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "label": "Gap between text and timer",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Sliding text"
+    },
+    {
+      "type": "text",
+      "id": "text_1",
+      "label": "Text 1",
+      "default": "Free shipping on orders over £50"
+    },
+    {
+      "type": "text",
+      "id": "text_2",
+      "label": "Text 2",
+      "default": "Shop now and save 20%"
+    },
+    {
+      "type": "text",
+      "id": "text_3",
+      "label": "Text 3",
+      "default": "Limited time offer"
+    },
+    {
+      "type": "text",
+      "id": "text_4",
+      "label": "Text 4"
+    },
+    {
+      "type": "text",
+      "id": "text_5",
+      "label": "Text 5"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "min": 10,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "text_weight",
+      "label": "Text weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "label": "Letter spacing",
+      "min": -2,
+      "max": 5,
+      "step": 0.1,
+      "unit": "px",
+      "default": 0.5
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text transform",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "uppercase", "label": "Uppercase" },
+        { "value": "lowercase", "label": "Lowercase" },
+        { "value": "capitalize", "label": "Capitalize" }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "text_spacing",
+      "label": "Space between texts",
+      "min": 20,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "slide_speed",
+      "label": "Slide speed",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "s",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Countdown timer"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_timer",
+      "label": "Show countdown timer",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "timer_reset_minutes",
+      "label": "Reset timer every",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "min",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "timer_size",
+      "label": "Timer size",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "timer_number_size",
+      "label": "Timer number size",
+      "min": 14,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "timer_label_size",
+      "label": "Timer label size",
+      "min": 8,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "select",
+      "id": "timer_weight",
+      "label": "Timer weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "select",
+      "id": "timer_number_weight",
+      "label": "Timer number weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-bold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra bold" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "color",
+      "id": "timer_text_color",
+      "label": "Timer text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "timer_background",
+      "label": "Timer background",
+      "default": "rgba(0, 0, 0, 0.2)"
+    },
+    {
+      "type": "range",
+      "id": "timer_padding_vertical",
+      "label": "Timer vertical padding",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "timer_padding_horizontal",
+      "label": "Timer horizontal padding",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "timer_border_radius",
+      "label": "Timer border radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "timer_gap",
+      "label": "Gap between timer units",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "timer_min_width",
+      "label": "Timer number min width",
+      "min": 20,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "text",
+      "id": "hours_label",
+      "label": "Hours label",
+      "default": "hrs"
+    },
+    {
+      "type": "text",
+      "id": "minutes_label",
+      "label": "Minutes label",
+      "default": "min"
+    },
+    {
+      "type": "text",
+      "id": "seconds_label",
+      "label": "Seconds label",
+      "default": "sec"
+    },
+    {
+      "type": "header",
+      "content": "Timer animation"
+    },
+    {
+      "type": "select",
+      "id": "timer_animation",
+      "label": "Animation style",
+      "options": [
+        { "value": "pulse", "label": "Pulse" },
+        { "value": "bounce", "label": "Bounce" },
+        { "value": "flash", "label": "Flash" },
+        { "value": "shake", "label": "Shake" },
+        { "value": "rotate", "label": "Rotate" },
+        { "value": "flip", "label": "Flip" }
+      ],
+      "default": "pulse"
+    },
+    {
+      "type": "range",
+      "id": "timer_animation_duration",
+      "label": "Animation duration",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.1,
+      "unit": "s",
+      "default": 0.5
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sliding announcement bar"
+    }
+  ]
+}
+{% endschema %}

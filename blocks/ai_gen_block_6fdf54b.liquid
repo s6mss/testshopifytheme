@@ -1,0 +1,732 @@
+{% doc %}
+  @prompt
+    I need a product gallery where I can choose my own products to show. Below, there should be an option where the customer can select the variant, quantity also, and add to cart as options. There must also be a customisation option to specify how many products per row (i.e. mobile, etc... 2 columns)?
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-product-gallery-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    padding: 20px 0;
+  }
+
+  .ai-product-gallery__grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat({{ block.settings.columns_desktop }}, 1fr);
+    gap: {{ block.settings.grid_gap }}px;
+    margin-bottom: 20px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-product-gallery__grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat({{ block.settings.columns_mobile }}, 1fr);
+    }
+  }
+
+  .ai-product-card-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_background_color }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    padding: {{ block.settings.card_padding }}px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ai-product-card__image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    background-color: #f4f4f4;
+  }
+
+  .ai-product-card__image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-product-card__image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f4;
+  }
+
+  .ai-product-card__image-placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+  }
+
+  .ai-product-card__info-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-product-card__title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_font_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .ai-product-card__price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_font_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.price_color }};
+  }
+
+  .ai-product-card__variant-selector-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-product-card__variant-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-product-card__variant-select-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    background-color: #ffffff;
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    cursor: pointer;
+  }
+
+  .ai-product-card__quantity-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ai-product-card__quantity-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-product-card__quantity-selector-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ai-product-card__quantity-button-{{ ai_gen_id }} {
+    width: 36px;
+    height: 36px;
+    border: 1px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    transition: background-color 0.2s ease;
+  }
+
+  .ai-product-card__quantity-button-{{ ai_gen_id }}:hover {
+    background-color: #f4f4f4;
+  }
+
+  .ai-product-card__quantity-input-{{ ai_gen_id }} {
+    width: 60px;
+    text-align: center;
+    padding: 8px;
+    border: 1px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: 16px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-product-card__add-to-cart-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 14px 20px;
+    background-color: {{ block.settings.button_background_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_font_size }}px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-product-card__add-to-cart-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+  }
+
+  .ai-product-card__add-to-cart-{{ ai_gen_id }}:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .ai-product-card__empty-state-{{ ai_gen_id }} {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+    font-size: 16px;
+  }
+{% endstyle %}
+
+<product-gallery-{{ ai_gen_id }}
+  class="ai-product-gallery-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-product-gallery__grid-{{ ai_gen_id }}">
+    {% liquid
+      assign has_products = false
+      for i in (1..12)
+        assign product_key = 'product_' | append: i
+        assign product = block.settings[product_key]
+        if product != blank
+          assign has_products = true
+          break
+        endif
+      endfor
+    %}
+
+    {% if has_products %}
+      {% for i in (1..12) %}
+        {% liquid
+          assign product_key = 'product_' | append: i
+          assign product = block.settings[product_key]
+        %}
+
+        {% if product != blank %}
+          <div class="ai-product-card-{{ ai_gen_id }}" data-product-id="{{ product.id }}">
+            <div class="ai-product-card__image-wrapper-{{ ai_gen_id }}">
+              {% if product.featured_image %}
+                <img
+                  src="{{ product.featured_image | image_url: width: 600 }}"
+                  alt="{{ product.featured_image.alt | escape }}"
+                  class="ai-product-card__image-{{ ai_gen_id }}"
+                  loading="lazy"
+                  width="600"
+                  height="600"
+                >
+              {% else %}
+                <div class="ai-product-card__image-placeholder-{{ ai_gen_id }}">
+                  {{ 'product-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="ai-product-card__info-{{ ai_gen_id }}">
+              <h3 class="ai-product-card__title-{{ ai_gen_id }}">{{ product.title }}</h3>
+              <div class="ai-product-card__price-{{ ai_gen_id }}">
+                {{ product.price | money }}
+              </div>
+
+              {% if product.has_only_default_variant %}
+                <input
+                  type="hidden"
+                  class="ai-variant-id-{{ ai_gen_id }}"
+                  value="{{ product.selected_or_first_available_variant.id }}"
+                >
+              {% else %}
+                <div class="ai-product-card__variant-selector-{{ ai_gen_id }}">
+                  <label class="ai-product-card__variant-label-{{ ai_gen_id }}">
+                    {{ block.settings.variant_label }}
+                  </label>
+                  <select
+                    class="ai-product-card__variant-select-{{ ai_gen_id }} ai-variant-select-{{ ai_gen_id }}"
+                    data-product-id="{{ product.id }}"
+                  >
+                    {% for variant in product.variants %}
+                      <option
+                        value="{{ variant.id }}"
+                        {% if variant.available == false %}disabled{% endif %}
+                        data-price="{{ variant.price }}"
+                      >
+                        {{ variant.title }}
+                        {% if variant.available == false %} - Sold Out{% endif %}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              {% endif %}
+
+              <div class="ai-product-card__quantity-wrapper-{{ ai_gen_id }}">
+                <label class="ai-product-card__quantity-label-{{ ai_gen_id }}">
+                  {{ block.settings.quantity_label }}
+                </label>
+                <div class="ai-product-card__quantity-selector-{{ ai_gen_id }}">
+                  <button
+                    type="button"
+                    class="ai-product-card__quantity-button-{{ ai_gen_id }} ai-qty-decrease-{{ ai_gen_id }}"
+                    aria-label="Decrease quantity"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    class="ai-product-card__quantity-input-{{ ai_gen_id }} ai-qty-input-{{ ai_gen_id }}"
+                    value="1"
+                    min="1"
+                    max="99"
+                    aria-label="Quantity"
+                  >
+                  <button
+                    type="button"
+                    class="ai-product-card__quantity-button-{{ ai_gen_id }} ai-qty-increase-{{ ai_gen_id }}"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="ai-product-card__add-to-cart-{{ ai_gen_id }} ai-add-to-cart-btn-{{ ai_gen_id }}"
+                data-product-id="{{ product.id }}"
+              >
+                {{ block.settings.add_to_cart_text }}
+              </button>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="ai-product-card__empty-state-{{ ai_gen_id }}">
+        Next, select products to display in your gallery
+      </div>
+    {% endif %}
+  </div>
+</product-gallery-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ProductGallery{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.setupQuantityControls();
+        this.setupVariantSelectors();
+        this.setupAddToCart();
+      }
+
+      setupQuantityControls() {
+        const cards = this.querySelectorAll('.ai-product-card-{{ ai_gen_id }}');
+
+        cards.forEach((card) => {
+          const decreaseBtn = card.querySelector('.ai-qty-decrease-{{ ai_gen_id }}');
+          const increaseBtn = card.querySelector('.ai-qty-increase-{{ ai_gen_id }}');
+          const input = card.querySelector('.ai-qty-input-{{ ai_gen_id }}');
+
+          decreaseBtn.addEventListener('click', () => {
+            const currentValue = parseInt(input.value) || 1;
+            if (currentValue > 1) {
+              input.value = currentValue - 1;
+            }
+          });
+
+          increaseBtn.addEventListener('click', () => {
+            const currentValue = parseInt(input.value) || 1;
+            const maxValue = parseInt(input.max) || 99;
+            if (currentValue < maxValue) {
+              input.value = currentValue + 1;
+            }
+          });
+
+          input.addEventListener('change', () => {
+            let value = parseInt(input.value) || 1;
+            const min = parseInt(input.min) || 1;
+            const max = parseInt(input.max) || 99;
+
+            if (value < min) value = min;
+            if (value > max) value = max;
+
+            input.value = value;
+          });
+        });
+      }
+
+      setupVariantSelectors() {
+        const selects = this.querySelectorAll('.ai-variant-select-{{ ai_gen_id }}');
+
+        selects.forEach((select) => {
+          select.addEventListener('change', (e) => {
+            const card = e.target.closest('.ai-product-card-{{ ai_gen_id }}');
+            const priceElement = card.querySelector('.ai-product-card__price-{{ ai_gen_id }}');
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const price = selectedOption.dataset.price;
+
+            if (price && priceElement) {
+              const formattedPrice = new Intl.NumberFormat('en-GB', {
+                style: 'currency',
+                currency: 'GBP'
+              }).format(price / 100);
+              priceElement.textContent = formattedPrice;
+            }
+          });
+        });
+      }
+
+      setupAddToCart() {
+        const buttons = this.querySelectorAll('.ai-add-to-cart-btn-{{ ai_gen_id }}');
+
+        buttons.forEach((button) => {
+          button.addEventListener('click', async (e) => {
+            const card = e.target.closest('.ai-product-card-{{ ai_gen_id }}');
+            const quantityInput = card.querySelector('.ai-qty-input-{{ ai_gen_id }}');
+            const variantSelect = card.querySelector('.ai-variant-select-{{ ai_gen_id }}');
+            const variantHidden = card.querySelector('.ai-variant-id-{{ ai_gen_id }}');
+
+            const quantity = parseInt(quantityInput.value) || 1;
+            const variantId = variantSelect ? variantSelect.value : variantHidden.value;
+
+            if (!variantId) {
+              return;
+            }
+
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = 'Adding...';
+
+            try {
+              const response = await fetch('/cart/add.js', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  items: [{
+                    id: variantId,
+                    quantity: quantity
+                  }]
+                })
+              });
+
+              if (response.ok) {
+                button.textContent = 'Added!';
+                setTimeout(() => {
+                  button.textContent = originalText;
+                  button.disabled = false;
+                }, 2000);
+
+                if (window.theme && window.theme.cart) {
+                  window.theme.cart.refresh();
+                } else {
+                  window.location.href = '/cart';
+                }
+              } else {
+                throw new Error('Failed to add to cart');
+              }
+            } catch (error) {
+              button.textContent = 'Error';
+              setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+              }, 2000);
+            }
+          });
+        });
+      }
+    }
+
+    customElements.define('product-gallery-{{ ai_gen_id }}', ProductGallery{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Product gallery",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Grid gap",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "product",
+      "id": "product_1",
+      "label": "Product 1"
+    },
+    {
+      "type": "product",
+      "id": "product_2",
+      "label": "Product 2"
+    },
+    {
+      "type": "product",
+      "id": "product_3",
+      "label": "Product 3"
+    },
+    {
+      "type": "product",
+      "id": "product_4",
+      "label": "Product 4"
+    },
+    {
+      "type": "product",
+      "id": "product_5",
+      "label": "Product 5"
+    },
+    {
+      "type": "product",
+      "id": "product_6",
+      "label": "Product 6"
+    },
+    {
+      "type": "product",
+      "id": "product_7",
+      "label": "Product 7"
+    },
+    {
+      "type": "product",
+      "id": "product_8",
+      "label": "Product 8"
+    },
+    {
+      "type": "product",
+      "id": "product_9",
+      "label": "Product 9"
+    },
+    {
+      "type": "product",
+      "id": "product_10",
+      "label": "Product 10"
+    },
+    {
+      "type": "product",
+      "id": "product_11",
+      "label": "Product 11"
+    },
+    {
+      "type": "product",
+      "id": "product_12",
+      "label": "Product 12"
+    },
+    {
+      "type": "header",
+      "content": "Text labels"
+    },
+    {
+      "type": "text",
+      "id": "variant_label",
+      "label": "Variant label",
+      "default": "Select option"
+    },
+    {
+      "type": "text",
+      "id": "quantity_label",
+      "label": "Quantity label",
+      "default": "Quantity"
+    },
+    {
+      "type": "text",
+      "id": "add_to_cart_text",
+      "label": "Add to cart button text",
+      "default": "Add to cart"
+    },
+    {
+      "type": "header",
+      "content": "Card style"
+    },
+    {
+      "type": "color",
+      "id": "card_background_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Card padding",
+      "min": 0,
+      "max": 30,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Image border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Title font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "label": "Price font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#444444"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#ff5801"
+    },
+    {
+      "type": "header",
+      "content": "Input style"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border color",
+      "default": "#e4e4e4"
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "label": "Input border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "color",
+      "id": "button_background_color",
+      "label": "Button background",
+      "default": "#ff5801"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover background",
+      "default": "#e04f01"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Button font size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product gallery"
+    }
+  ]
+}
+{% endschema %}

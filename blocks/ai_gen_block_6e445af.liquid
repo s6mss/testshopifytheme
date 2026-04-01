@@ -1,0 +1,313 @@
+{% doc %}
+  @prompt
+    Sliding announcement bar that I can select gradient for, enables text size and multiple text inputs. Highly customisable sizing.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-announcement-bar-{{ ai_gen_id }} {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    display: block;
+    {% if block.settings.use_gradient %}
+      background: {{ block.settings.gradient_background }};
+    {% else %}
+      background-color: {{ block.settings.background_color }};
+    {% endif %}
+    padding: {{ block.settings.vertical_padding }}px 0;
+  }
+
+  .ai-announcement-bar__track-{{ ai_gen_id }} {
+    display: flex;
+    width: max-content;
+    animation: ai-announcement-slide-{{ ai_gen_id }} {{ block.settings.animation_speed }}s linear infinite;
+    gap: {{ block.settings.text_spacing }}px;
+  }
+
+  .ai-announcement-bar__track-{{ ai_gen_id }}:hover {
+    animation-play-state: paused;
+  }
+
+  .ai-announcement-bar__item-{{ ai_gen_id }} {
+    white-space: nowrap;
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.text_size }}px;
+    font-weight: {{ block.settings.text_weight }};
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    text-transform: {{ block.settings.text_transform }};
+    display: flex;
+    align-items: center;
+    gap: {{ block.settings.text_spacing }}px;
+  }
+
+  .ai-announcement-bar__separator-{{ ai_gen_id }} {
+    color: {{ block.settings.separator_color }};
+    font-size: {{ block.settings.text_size }}px;
+  }
+
+  @keyframes ai-announcement-slide-{{ ai_gen_id }} {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-announcement-bar__item-{{ ai_gen_id }} {
+      font-size: {{ block.settings.mobile_text_size }}px;
+    }
+
+    .ai-announcement-bar__separator-{{ ai_gen_id }} {
+      font-size: {{ block.settings.mobile_text_size }}px;
+    }
+
+    .ai-announcement-bar-{{ ai_gen_id }} {
+      padding: {{ block.settings.mobile_vertical_padding }}px 0;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-announcement-bar-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-announcement-bar__track-{{ ai_gen_id }}">
+    {% liquid
+      assign messages = ''
+      if block.settings.text_1 != blank
+        assign messages = messages | append: block.settings.text_1
+      endif
+      if block.settings.text_2 != blank
+        if messages != blank
+          assign messages = messages | append: '|||'
+        endif
+        assign messages = messages | append: block.settings.text_2
+      endif
+      if block.settings.text_3 != blank
+        if messages != blank
+          assign messages = messages | append: '|||'
+        endif
+        assign messages = messages | append: block.settings.text_3
+      endif
+      if block.settings.text_4 != blank
+        if messages != blank
+          assign messages = messages | append: '|||'
+        endif
+        assign messages = messages | append: block.settings.text_4
+      endif
+      if block.settings.text_5 != blank
+        if messages != blank
+          assign messages = messages | append: '|||'
+        endif
+        assign messages = messages | append: block.settings.text_5
+      endif
+
+      assign message_array = messages | split: '|||'
+    %}
+
+    {% for i in (1..2) %}
+      {% for message in message_array %}
+        <span class="ai-announcement-bar__item-{{ ai_gen_id }}">{{ message }}</span>
+        {% unless forloop.last and forloop.parentloop.last %}
+          <span class="ai-announcement-bar__separator-{{ ai_gen_id }}">{{ block.settings.separator }}</span>
+        {% endunless %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Sliding announcement bar",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_gradient",
+      "label": "Use gradient background",
+      "default": true
+    },
+    {
+      "type": "color_background",
+      "id": "gradient_background",
+      "label": "Gradient",
+      "default": "linear-gradient(90deg, #667eea 0%, #764ba2 100%)"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Solid background color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Text messages"
+    },
+    {
+      "type": "text",
+      "id": "text_1",
+      "label": "Message 1",
+      "default": "Free shipping on orders over £50"
+    },
+    {
+      "type": "text",
+      "id": "text_2",
+      "label": "Message 2",
+      "default": "Shop now and save 20%"
+    },
+    {
+      "type": "text",
+      "id": "text_3",
+      "label": "Message 3",
+      "default": "Limited time offer"
+    },
+    {
+      "type": "text",
+      "id": "text_4",
+      "label": "Message 4"
+    },
+    {
+      "type": "text",
+      "id": "text_5",
+      "label": "Message 5"
+    },
+    {
+      "type": "header",
+      "content": "Text style"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Desktop text size",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_text_size",
+      "label": "Mobile text size",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "text_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "500"
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text transform",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "uppercase", "label": "Uppercase" },
+        { "value": "lowercase", "label": "Lowercase" },
+        { "value": "capitalize", "label": "Capitalize" }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "label": "Letter spacing",
+      "min": -2,
+      "max": 5,
+      "step": 0.1,
+      "unit": "px",
+      "default": 0.5
+    },
+    {
+      "type": "header",
+      "content": "Separator"
+    },
+    {
+      "type": "text",
+      "id": "separator",
+      "label": "Separator character",
+      "default": "•"
+    },
+    {
+      "type": "color",
+      "id": "separator_color",
+      "label": "Separator color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "Desktop vertical padding",
+      "min": 5,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "mobile_vertical_padding",
+      "label": "Mobile vertical padding",
+      "min": 5,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "text_spacing",
+      "label": "Space between messages",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    {
+      "type": "range",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "s",
+      "default": 30
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sliding announcement bar"
+    }
+  ]
+}
+{% endschema %}

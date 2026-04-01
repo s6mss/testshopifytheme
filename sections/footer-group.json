@@ -1,0 +1,229 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "name": "t:sections.footer.name",
+  "type": "footer",
+  "sections": {
+    "177471395353dea449": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_69454f4_4W8YDq": {
+          "type": "ai_gen_block_69454f4",
+          "settings": {
+            "heading": "NEWEST RELEASES",
+            "text_alignment": "left",
+            "product_1": "coyote-zip-up",
+            "product_2": "sixxo-short-sleeved-t-shirt",
+            "product_3": "acid-wash-tee",
+            "product_4": "red-black-tee",
+            "product_5": "raw-denim-jeans-1",
+            "product_6": "handmade-beanies",
+            "columns_desktop": 3,
+            "columns_mobile": "2",
+            "product_spacing": 8,
+            "desktop_width_percent": 100,
+            "variant_width": 2,
+            "quantity_width": 1,
+            "variant_label": "",
+            "quantity_label": "",
+            "button_text": "ADD TO CART",
+            "show_price_in_button": false,
+            "background_color": "#ffffff",
+            "text_color": "#000000",
+            "card_background": "#f9f9f9",
+            "card_border_color": "#e5e5e5",
+            "input_background": "#ffffff",
+            "input_border_color": "#cccccc",
+            "button_background": "#000000",
+            "button_text_color": "#ffffff",
+            "button_hover_background": "#333333",
+            "heading_size": 24,
+            "product_title_size": 20,
+            "product_price_size": 15,
+            "button_font_size": 12,
+            "card_padding": 0,
+            "card_border_width": 0,
+            "card_border_radius": 2,
+            "image_border_radius": 0,
+            "input_border_radius": 4,
+            "button_border_radius": 4
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_69454f4_6rTjGA": {
+          "type": "ai_gen_block_69454f4",
+          "settings": {
+            "heading": "NEWEST RELEASES",
+            "text_alignment": "left",
+            "product_1": "coyote-zip-up",
+            "product_2": "sixxo-short-sleeved-t-shirt",
+            "product_3": "acid-wash-tee",
+            "product_4": "red-black-tee",
+            "product_5": "raw-denim-jeans-1",
+            "product_6": "handmade-beanies",
+            "columns_desktop": 3,
+            "columns_mobile": "2",
+            "product_spacing": 8,
+            "desktop_width_percent": 100,
+            "variant_width": 2,
+            "quantity_width": 1,
+            "variant_label": "",
+            "quantity_label": "",
+            "button_text": "ADD TO CART",
+            "show_price_in_button": false,
+            "background_color": "#ffffff",
+            "text_color": "#000000",
+            "card_background": "#f9f9f9",
+            "card_border_color": "#e5e5e5",
+            "input_background": "#ffffff",
+            "input_border_color": "#cccccc",
+            "button_background": "#000000",
+            "button_text_color": "#ffffff",
+            "button_hover_background": "#333333",
+            "heading_size": 24,
+            "product_title_size": 20,
+            "product_price_size": 15,
+            "button_font_size": 12,
+            "card_padding": 0,
+            "card_border_width": 0,
+            "card_border_radius": 2,
+            "image_border_radius": 0,
+            "input_border_radius": 4,
+            "button_border_radius": 4
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_69454f4_4W8YDq",
+        "ai_gen_block_69454f4_6rTjGA"
+      ],
+      "disabled": true,
+      "settings": {}
+    },
+    "footer": {
+      "type": "custom-footer",
+      "blocks": {
+        "social_column_P8NDjQ": {
+          "type": "social_column",
+          "settings": {
+            "heading": "CONNECT WITH SIXXO",
+            "icon_color": "#ffffff",
+            "icon_hover_color": "#cccccc",
+            "icon_size": 48,
+            "icon_spacing": 8,
+            "heading_color": "",
+            "heading_font_size": 19,
+            "heading_margin_bottom": 8
+          }
+        },
+        "custom_links_1": {
+          "type": "custom_links",
+          "settings": {
+            "heading": "SUPPORT MENU",
+            "link_1_text": "Contact Us",
+            "link_1_url": "shopify://pages/contact",
+            "link_2_text": "Track Your Order",
+            "link_2_url": "shopify://pages/track-your-order",
+            "link_3_text": "Frequently Asked Questions",
+            "link_3_url": "shopify://pages/about-us",
+            "link_4_text": "",
+            "link_4_url": "/pages/faq",
+            "link_5_text": "",
+            "link_5_url": "/pages/shipping",
+            "link_6_text": "",
+            "link_6_url": "/pages/returns"
+          }
+        }
+      },
+      "block_order": [
+        "social_column_P8NDjQ",
+        "custom_links_1"
+      ],
+      "settings": {
+        "use_theme_colors": false,
+        "show_newsletter": true,
+        "newsletter_title": "NEWSLETTER",
+        "newsletter_title_alignment": "left",
+        "newsletter_title_color": "#000000",
+        "newsletter_subtitle": "Subscribe For Discounts & Early Drop Access",
+        "newsletter_subtitle_alignment": "left",
+        "newsletter_subtitle_color": "",
+        "newsletter_subtitle_margin_top": 16,
+        "newsletter_placeholder": "Enter Email Here",
+        "newsletter_button_text": "Subscribe",
+        "show_button_text": false,
+        "newsletter_button_bg_color": "",
+        "newsletter_button_text_color": "#ffffff",
+        "newsletter_button_border_radius": 4,
+        "show_brand_column": false,
+        "logo_width": 150,
+        "brand_name": "",
+        "logo_description": "",
+        "brand_description": "",
+        "footer_columns": "4",
+        "mobile_columns": "1",
+        "show_footer_bottom": true,
+        "copyright_text": "VERIFIED SECURE PAYMENTS | SIXXO, 2026",
+        "show_payment_icons": true,
+        "custom_payment_icons": "visa, mastercard, american_express, apple_pay, google_pay, shopify_pay, paypal, discover",
+        "payment_icon_height": 24,
+        "payment_icon_spacing": 8,
+        "show_localization": true,
+        "enable_country_selector": true,
+        "enable_language_selector": true,
+        "show_social": true,
+        "show_copyright": true,
+        "newsletter_bg_color": "#fdffff",
+        "newsletter_text_color": "#333333",
+        "newsletter_button_color": "#ff0000",
+        "footer_bg_color": "#181b1d",
+        "footer_text_color": "#b0b0b0",
+        "footer_link_color": "#ffffff",
+        "footer_link_hover_color": "#ffffff",
+        "footer_heading_color": "#fdffff",
+        "footer_border_color": "#333333",
+        "footer_menu_color": "#b0b0b0",
+        "footer_menu_hover_color": "#ffffff",
+        "footer_divider_color": "#666666",
+        "localization_label_color": "#b0b0b0",
+        "footer_heading_size": 22,
+        "footer_text_size": 14,
+        "newsletter_title_size": 30,
+        "newsletter_subtitle_size": 16,
+        "copyright_text_size": 11,
+        "localization_label_size": 14,
+        "newsletter_section_padding_top": 35,
+        "newsletter_section_padding_bottom": 35,
+        "newsletter_section_padding_top_mobile": 15,
+        "newsletter_section_padding_bottom_mobile": 15,
+        "newsletter_form_max_width": 580,
+        "newsletter_form_margin_top": 12,
+        "newsletter_input_padding_vertical": 8,
+        "newsletter_input_padding_horizontal": 10,
+        "newsletter_input_border_radius": 8,
+        "newsletter_input_border_width": 1,
+        "newsletter_input_border_color": "#e0e0e0",
+        "newsletter_input_font_size": 14,
+        "newsletter_input_height": 48,
+        "newsletter_input_bg_color": "#ffffff",
+        "newsletter_input_text_color": "#000000",
+        "enable_section_top_border": false,
+        "section_top_border_width": 1,
+        "section_top_border_style": "solid",
+        "section_top_border_color": "#e5e5e5"
+      }
+    }
+  },
+  "order": [
+    "177471395353dea449",
+    "footer"
+  ]
+}

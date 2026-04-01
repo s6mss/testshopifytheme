@@ -1,0 +1,796 @@
+{% doc %}
+  @prompt
+    please generate me an order tracking input system where user puts in their order number, it takes a few seconds (cogs animation) then validates it by providing a nice green tick, then comes up with an animated, joined timeline with icons showing progress bar, every time this is entered the progress bar will show that order has been sent, and is awaiting dispatch. also give me the option to customise each of the 3 stages texts. At the bottom, also give a button that enables an email to be sent. I can hyperlink this with mailto.
+    
+    , only prompt the cog animation and tick once I've clicked button 'track order'
+    
+    the 'locate parcel' button shold also have an option to add a pulsating globe icon., i meant the globe pulse on both buttons as an option, i meant the globe pulse on both buttons as an option
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-order-tracker-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    padding: 40px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-order-tracker-container-{{ ai_gen_id }} {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .ai-order-tracker-heading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 24px;
+    text-align: center;
+  }
+
+  .ai-order-tracker-input-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .ai-order-tracker-input-{{ ai_gen_id }} {
+    flex: 1;
+    padding: 14px 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: 16px;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-order-tracker-input-{{ ai_gen_id }}:focus {
+    outline: none;
+    border-color: {{ block.settings.button_color }};
+  }
+
+  .ai-order-tracker-button-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 32px;
+    background-color: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-order-tracker-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+  }
+
+  .ai-order-tracker-button-globe-{{ ai_gen_id }} {
+    width: 20px;
+    height: 20px;
+  }
+
+  {% if block.settings.enable_track_button_globe_pulse %}
+    .ai-order-tracker-button-globe-{{ ai_gen_id }} {
+      animation: ai-order-tracker-globe-pulse-{{ ai_gen_id }} 2s ease-in-out infinite;
+    }
+  {% endif %}
+
+  .ai-order-tracker-validation-{{ ai_gen_id }} {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding: 16px;
+    background-color: {{ block.settings.validation_bg_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-order-tracker-validation-{{ ai_gen_id }}.active {
+    display: flex;
+  }
+
+  .ai-order-tracker-spinner-{{ ai_gen_id }} {
+    width: 32px;
+    height: 32px;
+    position: relative;
+    display: none;
+  }
+
+  .ai-order-tracker-spinner-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-order-tracker-cog-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    animation: ai-order-tracker-spin-{{ ai_gen_id }} 2s linear infinite;
+  }
+
+  @keyframes ai-order-tracker-spin-{{ ai_gen_id }} {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .ai-order-tracker-checkmark-{{ ai_gen_id }} {
+    width: 32px;
+    height: 32px;
+    display: none;
+  }
+
+  .ai-order-tracker-checkmark-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-order-tracker-checkmark-circle-{{ ai_gen_id }} {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    animation: ai-order-tracker-stroke-{{ ai_gen_id }} 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+
+  .ai-order-tracker-checkmark-check-{{ ai_gen_id }} {
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: ai-order-tracker-stroke-{{ ai_gen_id }} 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+  }
+
+  @keyframes ai-order-tracker-stroke-{{ ai_gen_id }} {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .ai-order-tracker-validation-text-{{ ai_gen_id }} {
+    font-size: 16px;
+    color: {{ block.settings.validation_text_color }};
+    font-weight: 600;
+  }
+
+  .ai-order-tracker-timeline-{{ ai_gen_id }} {
+    display: none;
+    margin-bottom: 32px;
+  }
+
+  .ai-order-tracker-timeline-{{ ai_gen_id }}.active {
+    display: block;
+    animation: ai-order-tracker-fade-in-{{ ai_gen_id }} 0.5s ease-in-out;
+  }
+
+  @keyframes ai-order-tracker-fade-in-{{ ai_gen_id }} {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .ai-order-tracker-timeline-items-{{ ai_gen_id }} {
+    position: relative;
+    padding-left: 60px;
+  }
+
+  .ai-order-tracker-timeline-line-{{ ai_gen_id }} {
+    position: absolute;
+    left: 20px;
+    top: 40px;
+    bottom: 40px;
+    width: 3px;
+    background-color: {{ block.settings.timeline_line_color }};
+  }
+
+  .ai-order-tracker-timeline-item-{{ ai_gen_id }} {
+    position: relative;
+    margin-bottom: 40px;
+  }
+
+  .ai-order-tracker-timeline-item-{{ ai_gen_id }}:last-child {
+    margin-bottom: 0;
+  }
+
+  .ai-order-tracker-timeline-icon-{{ ai_gen_id }} {
+    position: absolute;
+    left: -48px;
+    top: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: {{ block.settings.timeline_icon_bg_inactive }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .ai-order-tracker-timeline-item-{{ ai_gen_id }}.active .ai-order-tracker-timeline-icon-{{ ai_gen_id }} {
+    background-color: {{ block.settings.timeline_icon_bg_active }};
+    animation: ai-order-tracker-pulse-{{ ai_gen_id }} 2s infinite;
+  }
+
+  @keyframes ai-order-tracker-pulse-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 {{ block.settings.timeline_icon_bg_active }}66;
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 10px {{ block.settings.timeline_icon_bg_active }}00;
+    }
+  }
+
+  .ai-order-tracker-timeline-icon-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+    color: {{ block.settings.timeline_icon_color_inactive }};
+  }
+
+  .ai-order-tracker-timeline-item-{{ ai_gen_id }}.active .ai-order-tracker-timeline-icon-{{ ai_gen_id }} svg {
+    color: {{ block.settings.timeline_icon_color_active }};
+  }
+
+  .ai-order-tracker-timeline-content-{{ ai_gen_id }} {
+    padding-left: 12px;
+  }
+
+  .ai-order-tracker-timeline-title-{{ ai_gen_id }} {
+    font-size: 18px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 4px;
+  }
+
+  .ai-order-tracker-timeline-desc-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.timeline_desc_color }};
+    margin: 0;
+  }
+
+  .ai-order-tracker-email-button-{{ ai_gen_id }} {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 16px 32px;
+    background-color: {{ block.settings.email_button_color }};
+    color: {{ block.settings.email_button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-order-tracker-email-button-{{ ai_gen_id }}.active {
+    display: flex;
+  }
+
+  .ai-order-tracker-email-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.email_button_hover_color }};
+  }
+
+  .ai-order-tracker-email-globe-{{ ai_gen_id }} {
+    width: 20px;
+    height: 20px;
+  }
+
+  {% if block.settings.enable_email_button_globe_pulse %}
+    .ai-order-tracker-email-globe-{{ ai_gen_id }} {
+      animation: ai-order-tracker-globe-pulse-{{ ai_gen_id }} 2s ease-in-out infinite;
+    }
+  {% endif %}
+
+  @keyframes ai-order-tracker-globe-pulse-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.8;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-order-tracker-{{ ai_gen_id }} {
+      padding: 24px 16px;
+    }
+
+    .ai-order-tracker-input-wrapper-{{ ai_gen_id }} {
+      flex-direction: column;
+    }
+
+    .ai-order-tracker-button-{{ ai_gen_id }} {
+      width: 100%;
+    }
+  }
+{% endstyle %}
+
+<order-tracker-{{ ai_gen_id }}
+  class="ai-order-tracker-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-order-tracker-container-{{ ai_gen_id }}">
+    <h2 class="ai-order-tracker-heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+
+    <div class="ai-order-tracker-input-wrapper-{{ ai_gen_id }}">
+      <input
+        type="text"
+        class="ai-order-tracker-input-{{ ai_gen_id }}"
+        placeholder="{{ block.settings.input_placeholder }}"
+        aria-label="Order number"
+      >
+      <button
+        type="button"
+        class="ai-order-tracker-button-{{ ai_gen_id }}"
+      >
+        {% if block.settings.enable_track_button_globe_icon %}
+          <svg class="ai-order-tracker-button-globe-{{ ai_gen_id }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        {% endif %}
+        {{ block.settings.button_text }}
+      </button>
+    </div>
+
+    <div class="ai-order-tracker-validation-{{ ai_gen_id }}">
+      <div class="ai-order-tracker-spinner-{{ ai_gen_id }}">
+        <svg class="ai-order-tracker-cog-{{ ai_gen_id }}" viewBox="0 0 24 24" fill="none" stroke="{{ block.settings.validation_icon_color }}" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 1v6m0 6v6M1 12h6m6 0h6"></path>
+          <path d="m4.93 4.93 4.24 4.24m5.66 0 4.24-4.24m0 14.14-4.24-4.24m-5.66 0-4.24 4.24"></path>
+        </svg>
+      </div>
+
+      <svg class="ai-order-tracker-checkmark-{{ ai_gen_id }}" viewBox="0 0 52 52">
+        <circle
+          class="ai-order-tracker-checkmark-circle-{{ ai_gen_id }}"
+          cx="26"
+          cy="26"
+          r="25"
+          fill="none"
+          stroke="{{ block.settings.validation_icon_color }}"
+          stroke-width="2"
+        />
+        <path
+          class="ai-order-tracker-checkmark-check-{{ ai_gen_id }}"
+          fill="none"
+          stroke="{{ block.settings.validation_icon_color }}"
+          stroke-width="3"
+          d="M14.1 27.2l7.1 7.2 16.7-16.8"
+        />
+      </svg>
+
+      <span class="ai-order-tracker-validation-text-{{ ai_gen_id }}">{{ block.settings.validation_text }}</span>
+    </div>
+
+    <div class="ai-order-tracker-timeline-{{ ai_gen_id }}">
+      <div class="ai-order-tracker-timeline-items-{{ ai_gen_id }}">
+        <div class="ai-order-tracker-timeline-line-{{ ai_gen_id }}"></div>
+
+        <div class="ai-order-tracker-timeline-item-{{ ai_gen_id }} active">
+          <div class="ai-order-tracker-timeline-icon-{{ ai_gen_id }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 11 12 14 22 4"></polyline>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+          </div>
+          <div class="ai-order-tracker-timeline-content-{{ ai_gen_id }}">
+            <h3 class="ai-order-tracker-timeline-title-{{ ai_gen_id }}">{{ block.settings.stage_1_title }}</h3>
+            <p class="ai-order-tracker-timeline-desc-{{ ai_gen_id }}">{{ block.settings.stage_1_description }}</p>
+          </div>
+        </div>
+
+        <div class="ai-order-tracker-timeline-item-{{ ai_gen_id }}">
+          <div class="ai-order-tracker-timeline-icon-{{ ai_gen_id }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+          </div>
+          <div class="ai-order-tracker-timeline-content-{{ ai_gen_id }}">
+            <h3 class="ai-order-tracker-timeline-title-{{ ai_gen_id }}">{{ block.settings.stage_2_title }}</h3>
+            <p class="ai-order-tracker-timeline-desc-{{ ai_gen_id }}">{{ block.settings.stage_2_description }}</p>
+          </div>
+        </div>
+
+        <div class="ai-order-tracker-timeline-item-{{ ai_gen_id }}">
+          <div class="ai-order-tracker-timeline-icon-{{ ai_gen_id }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div class="ai-order-tracker-timeline-content-{{ ai_gen_id }}">
+            <h3 class="ai-order-tracker-timeline-title-{{ ai_gen_id }}">{{ block.settings.stage_3_title }}</h3>
+            <p class="ai-order-tracker-timeline-desc-{{ ai_gen_id }}">{{ block.settings.stage_3_description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <a
+      href="{{ block.settings.email_button_link }}"
+      class="ai-order-tracker-email-button-{{ ai_gen_id }}"
+    >
+      {% if block.settings.enable_email_button_globe_icon %}
+        <svg class="ai-order-tracker-email-globe-{{ ai_gen_id }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+      {% endif %}
+      {{ block.settings.email_button_text }}
+    </a>
+  </div>
+</order-tracker-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class OrderTracker{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.input = this.querySelector('.ai-order-tracker-input-{{ ai_gen_id }}');
+        this.button = this.querySelector('.ai-order-tracker-button-{{ ai_gen_id }}');
+        this.validation = this.querySelector('.ai-order-tracker-validation-{{ ai_gen_id }}');
+        this.spinner = this.querySelector('.ai-order-tracker-spinner-{{ ai_gen_id }}');
+        this.checkmark = this.querySelector('.ai-order-tracker-checkmark-{{ ai_gen_id }}');
+        this.timeline = this.querySelector('.ai-order-tracker-timeline-{{ ai_gen_id }}');
+        this.emailButton = this.querySelector('.ai-order-tracker-email-button-{{ ai_gen_id }}');
+
+        this.button.addEventListener('click', () => this.trackOrder());
+        this.input.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.trackOrder();
+          }
+        });
+      }
+
+      trackOrder() {
+        const orderNumber = this.input.value.trim();
+
+        if (!orderNumber) {
+          return;
+        }
+
+        this.validation.classList.add('active');
+        this.spinner.classList.add('active');
+        this.checkmark.classList.remove('active');
+        this.timeline.classList.remove('active');
+        this.emailButton.classList.remove('active');
+
+        setTimeout(() => {
+          this.spinner.classList.remove('active');
+          this.checkmark.classList.add('active');
+
+          setTimeout(() => {
+            this.validation.classList.remove('active');
+            this.timeline.classList.add('active');
+            this.emailButton.classList.add('active');
+          }, 1500);
+        }, 2000);
+      }
+    }
+
+    customElements.define('order-tracker-{{ ai_gen_id }}', OrderTracker{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Order tracking system",
+  "settings": [
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Track Your Order"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 20,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Track order button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Track Order"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_track_button_globe_icon",
+      "label": "Show globe icon",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_track_button_globe_pulse",
+      "label": "Enable globe pulse animation",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Input field"
+    },
+    {
+      "type": "text",
+      "id": "input_placeholder",
+      "label": "Input placeholder",
+      "default": "Enter your order number"
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "label": "Input border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Validation"
+    },
+    {
+      "type": "text",
+      "id": "validation_text",
+      "label": "Validation text",
+      "default": "Order verified"
+    },
+    {
+      "type": "header",
+      "content": "Timeline stages"
+    },
+    {
+      "type": "text",
+      "id": "stage_1_title",
+      "label": "Stage 1 title",
+      "default": "Order Confirmed"
+    },
+    {
+      "type": "text",
+      "id": "stage_1_description",
+      "label": "Stage 1 description",
+      "default": "Your order has been received and confirmed"
+    },
+    {
+      "type": "text",
+      "id": "stage_2_title",
+      "label": "Stage 2 title",
+      "default": "Awaiting Dispatch"
+    },
+    {
+      "type": "text",
+      "id": "stage_2_description",
+      "label": "Stage 2 description",
+      "default": "Your order is being prepared for shipment"
+    },
+    {
+      "type": "text",
+      "id": "stage_3_title",
+      "label": "Stage 3 title",
+      "default": "Delivered"
+    },
+    {
+      "type": "text",
+      "id": "stage_3_description",
+      "label": "Stage 3 description",
+      "default": "Your order will be delivered soon"
+    },
+    {
+      "type": "header",
+      "content": "Locate parcel button"
+    },
+    {
+      "type": "text",
+      "id": "email_button_text",
+      "label": "Button text",
+      "default": "Locate Parcel"
+    },
+    {
+      "type": "url",
+      "id": "email_button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_email_button_globe_icon",
+      "label": "Show globe icon",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_email_button_globe_pulse",
+      "label": "Enable globe pulse animation",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border",
+      "default": "#dddddd"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button background",
+      "default": "#ff5801"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover background",
+      "default": "#e04d00"
+    },
+    {
+      "type": "color",
+      "id": "validation_bg_color",
+      "label": "Validation background",
+      "default": "#e8f5e9"
+    },
+    {
+      "type": "color",
+      "id": "validation_text_color",
+      "label": "Validation text",
+      "default": "#2e7d32"
+    },
+    {
+      "type": "color",
+      "id": "validation_icon_color",
+      "label": "Validation icon",
+      "default": "#2e7d32"
+    },
+    {
+      "type": "color",
+      "id": "timeline_line_color",
+      "label": "Timeline line",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "timeline_icon_bg_active",
+      "label": "Timeline icon background (active)",
+      "default": "#ff5801"
+    },
+    {
+      "type": "color",
+      "id": "timeline_icon_bg_inactive",
+      "label": "Timeline icon background (inactive)",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "timeline_icon_color_active",
+      "label": "Timeline icon (active)",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "timeline_icon_color_inactive",
+      "label": "Timeline icon (inactive)",
+      "default": "#999999"
+    },
+    {
+      "type": "color",
+      "id": "timeline_desc_color",
+      "label": "Timeline description",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "email_button_color",
+      "label": "Email button background",
+      "default": "#444444"
+    },
+    {
+      "type": "color",
+      "id": "email_button_text_color",
+      "label": "Email button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "email_button_hover_color",
+      "label": "Email button hover background",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Container border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    }
+  ],
+  "presets": [
+    {
+      "name": "Order tracking system"
+    }
+  ]
+}
+{% endschema %}

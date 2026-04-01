@@ -1,0 +1,917 @@
+{% doc %}
+  @prompt
+    Generate an affiliate hub. Basically, it's a UI where the user will input their affiliate link, there is a customisable button with a nice shadow glow and pulsating icon that has text 'track your stats', then an input for the affiliate link, with the first part of the URL pre-filled as 'www.sixxo.uk', then you can put the second part in yourself. then there's going to be a 5-10 second fake green loading button, that then pops up with a statistics dashboard showing 10 views, but 0 sales, and other affiliate related stats on a dynamic graph that the user can interact with. This stays until they refresh the page, but is mobile friendly and I can customise a lot myself., make it so the www.sixxo.uk/ part cannot be edited by the user. the track your stats button is below the enter your affiliate code part, and once loaded, you've generated me a dashboard including views, sales, click through rate and estimated earnings. like a nice UI dashboard you generate for me.
+    
+    Make it so that the user enters his own affiliate code. once that code has been entered, the data entered after is tied to it and saved. in the dashboard's UI, there should be an entry point for them to 'lock in' their bank account and sort code for 'payouts' / also have a banner at the top indicating that they will get 50% for each sale made from their affiliate link.
+    
+    The payout area should be autosaved for each individual URL that the user enters, then when they re-enter their sublink it comes up again showing as saved. The payout area should also have some more customisation and a card icon there, to indicate it's about payouts.
+    
+    Make sure that once the initial button is pressed, (track your stats) it disappears once pressed and the dashboard is shown.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-affiliate-hub-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    padding: 20px;
+    background: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    max-width: {{ block.settings.max_width }}px;
+    margin: 0 auto;
+  }
+
+  .ai-affiliate-hub__banner-{{ ai_gen_id }} {
+    background: {{ block.settings.banner_bg_color }};
+    color: {{ block.settings.banner_text_color }};
+    padding: 16px 20px;
+    border-radius: {{ block.settings.border_radius }}px;
+    text-align: center;
+    font-size: {{ block.settings.banner_font_size }}px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-affiliate-hub__input-section-{{ ai_gen_id }} {
+    margin-bottom: 24px;
+  }
+
+  .ai-affiliate-hub__label-{{ ai_gen_id }} {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin-bottom: 8px;
+  }
+
+  .ai-affiliate-hub__url-input-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    overflow: hidden;
+    background: {{ block.settings.input_bg_color }};
+    margin-bottom: 20px;
+  }
+
+  .ai-affiliate-hub__url-prefix-{{ ai_gen_id }} {
+    padding: 12px 16px;
+    background: {{ block.settings.prefix_bg_color }};
+    color: {{ block.settings.prefix_text_color }};
+    font-weight: 600;
+    font-size: 14px;
+    border-right: 2px solid {{ block.settings.input_border_color }};
+    white-space: nowrap;
+  }
+
+  .ai-affiliate-hub__url-input-{{ ai_gen_id }} {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: transparent;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-affiliate-hub__track-button-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 16px 24px;
+    background: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_font_size }}px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 4px 16px {{ block.settings.button_shadow_color }};
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-affiliate-hub__track-button-{{ ai_gen_id }}:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px {{ block.settings.button_shadow_color }};
+  }
+
+  .ai-affiliate-hub__track-button-{{ ai_gen_id }}:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .ai-affiliate-hub__button-icon-{{ ai_gen_id }} {
+    width: 20px;
+    height: 20px;
+    animation: ai-affiliate-pulse-{{ ai_gen_id }} 2s ease-in-out infinite;
+  }
+
+  @keyframes ai-affiliate-pulse-{{ ai_gen_id }} {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }
+
+  .ai-affiliate-hub__loading-{{ ai_gen_id }} {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .ai-affiliate-hub__loading-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-affiliate-hub__loading-spinner-{{ ai_gen_id }} {
+    width: 50px;
+    height: 50px;
+    border: 4px solid {{ block.settings.loading_bg_color }};
+    border-top-color: {{ block.settings.loading_color }};
+    border-radius: 50%;
+    animation: ai-affiliate-spin-{{ ai_gen_id }} 1s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes ai-affiliate-spin-{{ ai_gen_id }} {
+    to { transform: rotate(360deg); }
+  }
+
+  .ai-affiliate-hub__loading-text-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .ai-affiliate-hub__dashboard-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  .ai-affiliate-hub__dashboard-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-affiliate-hub__stats-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .ai-affiliate-hub__stat-card-{{ ai_gen_id }} {
+    background: {{ block.settings.card_bg_color }};
+    padding: 20px;
+    border-radius: {{ block.settings.card_border_radius }}px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid {{ block.settings.card_border_color }};
+  }
+
+  .ai-affiliate-hub__stat-label-{{ ai_gen_id }} {
+    font-size: 12px;
+    color: {{ block.settings.label_color }};
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-affiliate-hub__stat-value-{{ ai_gen_id }} {
+    font-size: 28px;
+    font-weight: 700;
+    color: {{ block.settings.value_color }};
+  }
+
+  .ai-affiliate-hub__chart-container-{{ ai_gen_id }} {
+    background: {{ block.settings.card_bg_color }};
+    padding: 24px;
+    border-radius: {{ block.settings.card_border_radius }}px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid {{ block.settings.card_border_color }};
+    margin-bottom: 24px;
+  }
+
+  .ai-affiliate-hub__chart-title-{{ ai_gen_id }} {
+    font-size: 16px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin-bottom: 20px;
+  }
+
+  .ai-affiliate-hub__chart-{{ ai_gen_id }} {
+    position: relative;
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .ai-affiliate-hub__chart-bar-{{ ai_gen_id }} {
+    flex: 1;
+    background: {{ block.settings.chart_bar_color }};
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 20px;
+  }
+
+  .ai-affiliate-hub__chart-bar-{{ ai_gen_id }}:hover {
+    background: {{ block.settings.chart_bar_hover_color }};
+    transform: translateY(-4px);
+  }
+
+  .ai-affiliate-hub__chart-tooltip-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: {{ block.settings.tooltip_bg_color }};
+    color: {{ block.settings.tooltip_text_color }};
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    margin-bottom: 8px;
+  }
+
+  .ai-affiliate-hub__chart-bar-{{ ai_gen_id }}:hover .ai-affiliate-hub__chart-tooltip-{{ ai_gen_id }} {
+    opacity: 1;
+  }
+
+  .ai-affiliate-hub__chart-labels-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 12px;
+    padding: 0 10px;
+  }
+
+  .ai-affiliate-hub__chart-label-{{ ai_gen_id }} {
+    flex: 1;
+    text-align: center;
+    font-size: 11px;
+    color: {{ block.settings.label_color }};
+  }
+
+  .ai-affiliate-hub__payout-section-{{ ai_gen_id }} {
+    background: {{ block.settings.payout_bg_color }};
+    padding: 24px;
+    border-radius: {{ block.settings.card_border_radius }}px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid {{ block.settings.card_border_color }};
+  }
+
+  .ai-affiliate-hub__payout-header-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .ai-affiliate-hub__payout-icon-{{ ai_gen_id }} {
+    width: 32px;
+    height: 32px;
+    color: {{ block.settings.payout_icon_color }};
+  }
+
+  .ai-affiliate-hub__payout-title-{{ ai_gen_id }} {
+    font-size: 18px;
+    font-weight: 700;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-affiliate-hub__payout-form-{{ ai_gen_id }} {
+    display: grid;
+    gap: 16px;
+  }
+
+  .ai-affiliate-hub__payout-input-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid {{ block.settings.input_border_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: 14px;
+    background: {{ block.settings.input_bg_color }};
+    color: {{ block.settings.text_color }};
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .ai-affiliate-hub__payout-input-{{ ai_gen_id }}:focus {
+    border-color: {{ block.settings.button_bg_color }};
+  }
+
+  .ai-affiliate-hub__payout-saved-{{ ai_gen_id }} {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: {{ block.settings.success_bg_color }};
+    color: {{ block.settings.success_text_color }};
+    border-radius: {{ block.settings.input_border_radius }}px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .ai-affiliate-hub__payout-saved-{{ ai_gen_id }}.active {
+    display: flex;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-affiliate-hub-{{ ai_gen_id }} {
+      padding: 16px;
+    }
+
+    .ai-affiliate-hub__stats-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+
+    .ai-affiliate-hub__stat-value-{{ ai_gen_id }} {
+      font-size: 24px;
+    }
+
+    .ai-affiliate-hub__url-prefix-{{ ai_gen_id }} {
+      font-size: 12px;
+      padding: 12px;
+    }
+
+    .ai-affiliate-hub__chart-{{ ai_gen_id }} {
+      height: 150px;
+    }
+  }
+{% endstyle %}
+
+<affiliate-hub-{{ ai_gen_id }} class="ai-affiliate-hub-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-affiliate-hub__banner-{{ ai_gen_id }}">
+    {{ block.settings.banner_text }}
+  </div>
+
+  <div class="ai-affiliate-hub__input-section-{{ ai_gen_id }}">
+    <label class="ai-affiliate-hub__label-{{ ai_gen_id }}">
+      {{ block.settings.input_label }}
+    </label>
+    <div class="ai-affiliate-hub__url-input-wrapper-{{ ai_gen_id }}">
+      <span class="ai-affiliate-hub__url-prefix-{{ ai_gen_id }}">{{ block.settings.url_prefix }}</span>
+      <input
+        type="text"
+        class="ai-affiliate-hub__url-input-{{ ai_gen_id }}"
+        placeholder="{{ block.settings.input_placeholder }}"
+        data-affiliate-input
+      >
+    </div>
+
+    <button class="ai-affiliate-hub__track-button-{{ ai_gen_id }}" data-track-button>
+      <svg class="ai-affiliate-hub__button-icon-{{ ai_gen_id }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 11l3 3L22 4"></path>
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+      </svg>
+      {{ block.settings.button_text }}
+    </button>
+  </div>
+
+  <div class="ai-affiliate-hub__loading-{{ ai_gen_id }}" data-loading>
+    <div class="ai-affiliate-hub__loading-spinner-{{ ai_gen_id }}"></div>
+    <div class="ai-affiliate-hub__loading-text-{{ ai_gen_id }}">{{ block.settings.loading_text }}</div>
+  </div>
+
+  <div class="ai-affiliate-hub__dashboard-{{ ai_gen_id }}" data-dashboard>
+    <div class="ai-affiliate-hub__stats-grid-{{ ai_gen_id }}">
+      <div class="ai-affiliate-hub__stat-card-{{ ai_gen_id }}">
+        <div class="ai-affiliate-hub__stat-label-{{ ai_gen_id }}">Views</div>
+        <div class="ai-affiliate-hub__stat-value-{{ ai_gen_id }}" data-stat-views>10</div>
+      </div>
+      <div class="ai-affiliate-hub__stat-card-{{ ai_gen_id }}">
+        <div class="ai-affiliate-hub__stat-label-{{ ai_gen_id }}">Sales</div>
+        <div class="ai-affiliate-hub__stat-value-{{ ai_gen_id }}" data-stat-sales>0</div>
+      </div>
+      <div class="ai-affiliate-hub__stat-card-{{ ai_gen_id }}">
+        <div class="ai-affiliate-hub__stat-label-{{ ai_gen_id }}">Click Rate</div>
+        <div class="ai-affiliate-hub__stat-value-{{ ai_gen_id }}" data-stat-ctr>8.5%</div>
+      </div>
+      <div class="ai-affiliate-hub__stat-card-{{ ai_gen_id }}">
+        <div class="ai-affiliate-hub__stat-label-{{ ai_gen_id }}">Earnings</div>
+        <div class="ai-affiliate-hub__stat-value-{{ ai_gen_id }}" data-stat-earnings>£0.00</div>
+      </div>
+    </div>
+
+    <div class="ai-affiliate-hub__chart-container-{{ ai_gen_id }}">
+      <div class="ai-affiliate-hub__chart-title-{{ ai_gen_id }}">{{ block.settings.chart_title }}</div>
+      <div class="ai-affiliate-hub__chart-{{ ai_gen_id }}" data-chart></div>
+      <div class="ai-affiliate-hub__chart-labels-{{ ai_gen_id }}" data-chart-labels></div>
+    </div>
+
+    <div class="ai-affiliate-hub__payout-section-{{ ai_gen_id }}">
+      <div class="ai-affiliate-hub__payout-header-{{ ai_gen_id }}">
+        <svg class="ai-affiliate-hub__payout-icon-{{ ai_gen_id }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+          <line x1="1" y1="10" x2="23" y2="10"></line>
+        </svg>
+        <div class="ai-affiliate-hub__payout-title-{{ ai_gen_id }}">{{ block.settings.payout_title }}</div>
+      </div>
+      <div class="ai-affiliate-hub__payout-form-{{ ai_gen_id }}">
+        <input
+          type="text"
+          class="ai-affiliate-hub__payout-input-{{ ai_gen_id }}"
+          placeholder="{{ block.settings.account_placeholder }}"
+          data-account-input
+        >
+        <input
+          type="text"
+          class="ai-affiliate-hub__payout-input-{{ ai_gen_id }}"
+          placeholder="{{ block.settings.sortcode_placeholder }}"
+          data-sortcode-input
+        >
+        <div class="ai-affiliate-hub__payout-saved-{{ ai_gen_id }}" data-payout-saved>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 6L9 17l-5-5"></path>
+          </svg>
+          {{ block.settings.payout_saved_text }}
+        </div>
+      </div>
+    </div>
+  </div>
+</affiliate-hub-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class AffiliateHub{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.affiliateInput = this.querySelector('[data-affiliate-input]');
+        this.trackButton = this.querySelector('[data-track-button]');
+        this.loadingSection = this.querySelector('[data-loading]');
+        this.dashboard = this.querySelector('[data-dashboard]');
+        this.inputSection = this.querySelector('.ai-affiliate-hub__input-section-{{ ai_gen_id }}');
+        this.accountInput = this.querySelector('[data-account-input]');
+        this.sortcodeInput = this.querySelector('[data-sortcode-input]');
+        this.payoutSaved = this.querySelector('[data-payout-saved]');
+        this.chart = this.querySelector('[data-chart]');
+        this.chartLabels = this.querySelector('[data-chart-labels]');
+        
+        this.storageKey = 'affiliateHub_{{ ai_gen_id }}';
+      }
+
+      connectedCallback() {
+        this.setupEventListeners();
+        this.loadSavedData();
+      }
+
+      setupEventListeners() {
+        this.trackButton.addEventListener('click', () => this.handleTrackStats());
+        this.accountInput.addEventListener('input', () => this.handlePayoutInput());
+        this.sortcodeInput.addEventListener('input', () => this.handlePayoutInput());
+        this.affiliateInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.handleTrackStats();
+          }
+        });
+      }
+
+      loadSavedData() {
+        const affiliateCode = this.affiliateInput.value.trim();
+        if (affiliateCode) {
+          const savedData = this.getStoredData(affiliateCode);
+          if (savedData && savedData.account && savedData.sortcode) {
+            this.accountInput.value = savedData.account;
+            this.sortcodeInput.value = savedData.sortcode;
+          }
+        }
+      }
+
+      handleTrackStats() {
+        const affiliateCode = this.affiliateInput.value.trim();
+        
+        if (!affiliateCode) {
+          alert('Please enter your affiliate code');
+          return;
+        }
+
+        this.trackButton.disabled = true;
+        this.inputSection.style.display = 'none';
+        this.loadingSection.classList.add('active');
+
+        setTimeout(() => {
+          this.loadingSection.classList.remove('active');
+          this.dashboard.classList.add('active');
+          this.loadDashboardData(affiliateCode);
+        }, {{ block.settings.loading_duration | times: 1000 }});
+      }
+
+      loadDashboardData(affiliateCode) {
+        const savedData = this.getStoredData(affiliateCode);
+        
+        if (savedData && savedData.account && savedData.sortcode) {
+          this.accountInput.value = savedData.account;
+          this.sortcodeInput.value = savedData.sortcode;
+          this.payoutSaved.classList.add('active');
+        }
+
+        this.renderChart();
+      }
+
+      renderChart() {
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const views = [2, 3, 1, 4, 2, 5, 3];
+        const maxViews = Math.max(...views);
+
+        this.chart.innerHTML = '';
+        this.chartLabels.innerHTML = '';
+
+        views.forEach((view, index) => {
+          const height = (view / maxViews) * 100;
+          const bar = document.createElement('div');
+          bar.className = 'ai-affiliate-hub__chart-bar-{{ ai_gen_id }}';
+          bar.style.height = height + '%';
+          
+          const tooltip = document.createElement('div');
+          tooltip.className = 'ai-affiliate-hub__chart-tooltip-{{ ai_gen_id }}';
+          tooltip.textContent = view + ' views';
+          
+          bar.appendChild(tooltip);
+          this.chart.appendChild(bar);
+
+          const label = document.createElement('div');
+          label.className = 'ai-affiliate-hub__chart-label-{{ ai_gen_id }}';
+          label.textContent = days[index];
+          this.chartLabels.appendChild(label);
+        });
+      }
+
+      handlePayoutInput() {
+        const affiliateCode = this.affiliateInput.value.trim();
+        const account = this.accountInput.value.trim();
+        const sortcode = this.sortcodeInput.value.trim();
+
+        if (affiliateCode && account && sortcode) {
+          this.savePayoutData(affiliateCode, account, sortcode);
+          this.payoutSaved.classList.add('active');
+        } else {
+          this.payoutSaved.classList.remove('active');
+        }
+      }
+
+      savePayoutData(affiliateCode, account, sortcode) {
+        const allData = JSON.parse(localStorage.getItem(this.storageKey) || '{}');
+        allData[affiliateCode] = { account, sortcode };
+        localStorage.setItem(this.storageKey, JSON.stringify(allData));
+      }
+
+      getStoredData(affiliateCode) {
+        const allData = JSON.parse(localStorage.getItem(this.storageKey) || '{}');
+        return allData[affiliateCode] || null;
+      }
+    }
+
+    customElements.define('affiliate-hub-{{ ai_gen_id }}', AffiliateHub{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Affiliate hub",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Banner"
+    },
+    {
+      "type": "text",
+      "id": "banner_text",
+      "label": "Banner text",
+      "default": "🎉 Earn 50% commission on every sale from your affiliate link!"
+    },
+    {
+      "type": "color",
+      "id": "banner_bg_color",
+      "label": "Background color",
+      "default": "#ff5801"
+    },
+    {
+      "type": "color",
+      "id": "banner_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "banner_font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Affiliate input"
+    },
+    {
+      "type": "text",
+      "id": "input_label",
+      "label": "Input label",
+      "default": "Enter your affiliate code"
+    },
+    {
+      "type": "text",
+      "id": "url_prefix",
+      "label": "URL prefix",
+      "default": "www.sixxo.uk/"
+    },
+    {
+      "type": "text",
+      "id": "input_placeholder",
+      "label": "Input placeholder",
+      "default": "your-code"
+    },
+    {
+      "type": "color",
+      "id": "prefix_bg_color",
+      "label": "Prefix background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "prefix_text_color",
+      "label": "Prefix text color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Track button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Track Your Stats"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Background color",
+      "default": "#ff5801"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_shadow_color",
+      "label": "Shadow color",
+      "default": "rgba(255, 88, 1, 0.3)"
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Font size",
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Loading"
+    },
+    {
+      "type": "text",
+      "id": "loading_text",
+      "label": "Loading text",
+      "default": "Loading your stats..."
+    },
+    {
+      "type": "range",
+      "id": "loading_duration",
+      "label": "Loading duration",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 7
+    },
+    {
+      "type": "color",
+      "id": "loading_color",
+      "label": "Spinner color",
+      "default": "#ff5801"
+    },
+    {
+      "type": "color",
+      "id": "loading_bg_color",
+      "label": "Spinner background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "header",
+      "content": "Dashboard"
+    },
+    {
+      "type": "text",
+      "id": "chart_title",
+      "label": "Chart title",
+      "default": "Views Over Last 7 Days"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border color",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "value_color",
+      "label": "Value color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "chart_bar_color",
+      "label": "Chart bar color",
+      "default": "#ff5801"
+    },
+    {
+      "type": "color",
+      "id": "chart_bar_hover_color",
+      "label": "Chart bar hover color",
+      "default": "#e64f01"
+    },
+    {
+      "type": "color",
+      "id": "tooltip_bg_color",
+      "label": "Tooltip background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "tooltip_text_color",
+      "label": "Tooltip text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Payout section"
+    },
+    {
+      "type": "text",
+      "id": "payout_title",
+      "label": "Payout title",
+      "default": "Lock in your payout details"
+    },
+    {
+      "type": "text",
+      "id": "account_placeholder",
+      "label": "Account placeholder",
+      "default": "Bank account number"
+    },
+    {
+      "type": "text",
+      "id": "sortcode_placeholder",
+      "label": "Sort code placeholder",
+      "default": "Sort code (XX-XX-XX)"
+    },
+    {
+      "type": "text",
+      "id": "payout_saved_text",
+      "label": "Saved message",
+      "default": "Payout details saved!"
+    },
+    {
+      "type": "color",
+      "id": "payout_bg_color",
+      "label": "Background color",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "color",
+      "id": "payout_icon_color",
+      "label": "Icon color",
+      "default": "#ff5801"
+    },
+    {
+      "type": "color",
+      "id": "success_bg_color",
+      "label": "Success background",
+      "default": "#d4edda"
+    },
+    {
+      "type": "color",
+      "id": "success_text_color",
+      "label": "Success text color",
+      "default": "#155724"
+    },
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 400,
+      "max": 1000,
+      "step": 50,
+      "unit": "px",
+      "default": 800
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fafafa"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "input_bg_color",
+      "label": "Input background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input border color",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "label": "Input border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    }
+  ],
+  "presets": [
+    {
+      "name": "Affiliate hub"
+    }
+  ]
+}
+{% endschema %}

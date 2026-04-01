@@ -1,0 +1,126 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "use_theme_colors": true,
+        "padding_top": 28,
+        "padding_bottom": 28
+      }
+    },
+    "1774710082b8899d0e": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_69454f4_Ama8Yw": {
+          "type": "ai_gen_block_69454f4",
+          "name": "Product collection",
+          "disabled": true,
+          "settings": {
+            "heading": "NEWEST RELEASES",
+            "text_alignment": "left",
+            "product_1": "coyote-zip-up",
+            "product_2": "sixxo-short-sleeved-t-shirt",
+            "product_3": "acid-wash-tee",
+            "product_4": "red-black-tee",
+            "product_5": "raw-denim-jeans-1",
+            "product_6": "handmade-beanies",
+            "columns_desktop": 3,
+            "columns_mobile": "2",
+            "product_spacing": 16,
+            "desktop_width_percent": 100,
+            "variant_width": 2,
+            "quantity_width": 1,
+            "variant_label": "Variant",
+            "quantity_label": "Quantity",
+            "button_text": "ADD TO CART",
+            "show_price_in_button": false,
+            "background_color": "#ffffff",
+            "text_color": "#000000",
+            "card_background": "#f9f9f9",
+            "card_border_color": "#e5e5e5",
+            "input_background": "#ffffff",
+            "input_border_color": "#cccccc",
+            "button_background": "#000000",
+            "button_text_color": "#ffffff",
+            "button_hover_background": "#333333",
+            "heading_size": 28,
+            "product_title_size": 13,
+            "product_price_size": 14,
+            "button_font_size": 12,
+            "card_padding": 16,
+            "card_border_width": 1,
+            "card_border_radius": 8,
+            "image_border_radius": 4,
+            "input_border_radius": 4,
+            "button_border_radius": 6
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_7637046_6QdcXC": {
+          "type": "ai_gen_block_7637046",
+          "settings": {
+            "desktop_width_percent": 100,
+            "columns_desktop": 4,
+            "columns_mobile": "2",
+            "grid_gap": 20,
+            "product_1": "coyote-zip-up",
+            "product_2": "lava-molten-longsleeve-copy",
+            "product_3": "sixxo-short-sleeved-t-shirt",
+            "product_4": "acid-wash-tee",
+            "product_5": "lava-molten-longsleeve",
+            "product_6": "red-black-tee",
+            "product_7": "handmade-beanies",
+            "product_8": "raw-denim-jeans-1",
+            "product_9": "",
+            "product_10": "",
+            "product_11": "",
+            "product_12": "",
+            "product_13": "",
+            "product_14": "",
+            "product_15": "",
+            "product_16": "",
+            "product_17": "",
+            "product_18": "",
+            "product_19": "",
+            "product_20": "",
+            "variant_width": 60,
+            "quantity_width": 40,
+            "button_text": "ADD TO CART",
+            "show_price_in_button": false,
+            "button_font_size": 14,
+            "button_color": "#000000",
+            "button_text_color": "#ffffff",
+            "button_hover_color": "#505050",
+            "button_border_radius": 12,
+            "background_color": "#ffffff",
+            "text_color": "#444444",
+            "title_font_size": 13,
+            "image_border_radius": 8,
+            "input_border_color": "#cccccc",
+            "input_border_radius": 4
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_69454f4_Ama8Yw",
+        "ai_gen_block_7637046_6QdcXC"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "main",
+    "1774710082b8899d0e"
+  ]
+}
