@@ -1015,31 +1015,31 @@
 
                                         unless custom_mapping_found
                                           case value_downcase
-                                            when 'red' assign color_hex = '#FF0000'
+                                            when 'red'
 
-                                            when 'blue' assign color_hex = '#0000FF'
+                                            when 'blue'
 
-                                            when 'green' assign color_hex = '#008000'
+                                            when 'green'
 
-                                            when 'yellow' assign color_hex = '#FFFF00'
+                                            when 'yellow'
 
-                                            when 'orange' assign color_hex = '#FFA500'
+                                            when 'orange'
 
-                                            when 'purple' assign color_hex = '#800080'
+                                            when 'purple'
 
-                                            when 'pink' assign color_hex = '#FFC0CB'
+                                            when 'pink'
 
-                                            when 'brown' assign color_hex = '#A52A2A'
+                                            when 'brown'
 
-                                            when 'black' assign color_hex = '#000000'
+                                            when 'black'
 
-                                            when 'white' assign color_hex = '#FFFFFF'
+                                            when 'white'
 
-                                            when 'gray', 'grey' assign color_hex = '#808080'
+                                            when 'gray', 'grey'
 
-                                            when 'navy' assign color_hex = '#000080'
+                                            when 'navy'
 
-                                            when 'beige' assign color_hex = '#F5F5DC'
+                                            when 'beige'
 
                                             else
                                               assign color_hex = '#CCCCCC'
@@ -2679,3 +2679,62 @@ function updateAllQuantityBreakDisplays(quantityOption) {
       
     });
 </script>
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "                                            when 'red' assign color_hex =
+    '#FF0000'"
+  to: "                                            when 'red'"
+  position: 53265..53319
+- from: "                                            when 'blue' assign color_hex
+    = '#0000FF'"
+  to: "                                            when 'blue'"
+  position: 53321..53376
+- from: "                                            when 'green' assign color_hex
+    = '#008000'"
+  to: "                                            when 'green'"
+  position: 53378..53434
+- from: "                                            when 'yellow' assign color_hex
+    = '#FFFF00'"
+  to: "                                            when 'yellow'"
+  position: 53436..53493
+- from: "                                            when 'orange' assign color_hex
+    = '#FFA500'"
+  to: "                                            when 'orange'"
+  position: 53495..53552
+- from: "                                            when 'purple' assign color_hex
+    = '#800080'"
+  to: "                                            when 'purple'"
+  position: 53554..53611
+- from: "                                            when 'pink' assign color_hex
+    = '#FFC0CB'"
+  to: "                                            when 'pink'"
+  position: 53613..53668
+- from: "                                            when 'brown' assign color_hex
+    = '#A52A2A'"
+  to: "                                            when 'brown'"
+  position: 53670..53726
+- from: "                                            when 'black' assign color_hex
+    = '#000000'"
+  to: "                                            when 'black'"
+  position: 53728..53784
+- from: "                                            when 'white' assign color_hex
+    = '#FFFFFF'"
+  to: "                                            when 'white'"
+  position: 53786..53842
+- from: "                                            when 'gray', 'grey' assign color_hex
+    = '#808080'"
+  to: "                                            when 'gray', 'grey'"
+  position: 53844..53907
+- from: "                                            when 'navy' assign color_hex
+    = '#000080'"
+  to: "                                            when 'navy'"
+  position: 53909..53964
+- from: "                                            when 'beige' assign color_hex
+    = '#F5F5DC'"
+  to: "                                            when 'beige'"
+  position: 53966..54022
+{% endcomment %}
